@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<br>
+<h1>Pergunta:</h1>
+<p><h2>{{ pergunta.pergunta }}</h2></p>
+{% for resposta in respostas %}
+<p><h2>{{ resposta.resposta }}</h2></p>
+{% endfor %}
+<p>ID: {{ pergunta.id }}</p>
+{% endblock %}
