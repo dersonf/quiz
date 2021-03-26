@@ -1,5 +1,5 @@
 from flask import render_template, redirect, url_for, flash
-from app.forms import CadastroForm
+from app.forms import CadastroForm, RespostaForm
 from app import app, db
 from app.models import Perguntas, Respostas
 from random import choice
@@ -39,12 +39,14 @@ def add():
     return render_template('cadastro.html', title='Cadastro', form=form)
 
 
-@app.route('/jogar')
+@app.route('/jogar', methods=['GET', 'POST'])
 def jogar():
-    id_perguntas = []
+    form = RespostaForm()
     perguntas = Perguntas.query.all()
+    id_perguntas = []
     for id in perguntas:
         id_perguntas.append(id.id)
     pergunta = Perguntas.query.get(choice(id_perguntas))
     respostas = Respostas.query.filter_by(pergunta_id=pergunta.id)
-    return render_template('pergunta.html', title=pergunta, pergunta=pergunta, respostas=respostas)
+    return render_template('pergunta.html', title=pergunta, pergunta=pergunta,
+                           respostas=respostas, form=form)

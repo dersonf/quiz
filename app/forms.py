@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, BooleanField, SubmitField, SelectField
+from wtforms import StringField, BooleanField, SubmitField, SelectField, RadioField
 from wtforms.validators import DataRequired
 
 
@@ -21,3 +21,14 @@ class CadastroForm(FlaskForm):
         (66, 'Difícil'),
         ])
     submit = SubmitField('Cadastrar')
+
+
+class RespostaForm(FlaskForm):
+    resposta = RadioField('Resposta', choices=[
+        ('resposta1', 'Resposta 1'),
+        ('resposta2', 'Resposta 2'),
+        ('resposta3', 'Resposta 3'),
+        ('resposta4', 'Resposta 4')
+        ], validators=[DataRequired()])
+    submit = SubmitField('Responder')
+
