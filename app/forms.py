@@ -29,6 +29,10 @@ class RespostaForm(FlaskForm):
         ('resposta2', 'Resposta 2'),
         ('resposta3', 'Resposta 3'),
         ('resposta4', 'Resposta 4')
-        ], validators=[DataRequired()])
+        ])
     submit = SubmitField('Responder')
+
+    def __init__(self, respostas: list = None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.resposta.choices = respostas
 

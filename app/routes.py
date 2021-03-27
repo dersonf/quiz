@@ -2,7 +2,7 @@ from flask import render_template, redirect, url_for, flash
 from app.forms import CadastroForm, RespostaForm
 from app import app, db
 from app.models import Perguntas, Respostas
-from random import choice
+from random import choice, sample
 
 @app.route('/')
 def index():
@@ -42,11 +42,20 @@ def add():
 @app.route('/jogar', methods=['GET', 'POST'])
 def jogar():
     form = RespostaForm()
-    perguntas = Perguntas.query.all()
+    if form.validate_on_submit():
+        print(of)
+        return redirect(url_for('jogar'))
     id_perguntas = []
+    perguntas = Perguntas.query.all()
     for id in perguntas:
         id_perguntas.append(id.id)
     pergunta = Perguntas.query.get(choice(id_perguntas))
     respostas = Respostas.query.filter_by(pergunta_id=pergunta.id)
+    opcoes = []
+    for resposta in respostas:
+        temp = (resposta.id, resposta.resposta)
+        opcoes.append(temp)
+    form = RespostaForm(respostas=sample(opcoes, k=4))
     return render_template('pergunta.html', title=pergunta, pergunta=pergunta,
                            respostas=respostas, form=form)
+

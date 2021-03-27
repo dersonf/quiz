@@ -4,26 +4,12 @@
 <br>
 <h1>Pergunta:</h1>
 <p><h2>{{ pergunta.pergunta }}</h2></p>
-{% for resposta in respostas %}
-<p><h2>{{ resposta.resposta }}</h2></p>
-{% endfor %}
 <form action="" method="post">
     {{ form.hidden_tag() }}
-    <p>
-        {% for subfield in form.resposta %}
-        <tr>
-            <td>
-                {{ subfield }}
-                {{ subfield.label }}
-            </td>
-        </tr>
-        
-        <!--{{ form.resposta.label }}
-        {{ form.resposta }}<br>
-        {% for error in form.resposta.errors %}
-        <span style="color:red;">[{{ error }}]</span>
-        {% endfor %}-->
-        {% endfor %}
+    <h2>{{ form.resposta }}</h2>
+    {% for error in form.resposta.errors %}
+    <span style="color:red;">[{{ error }}]</span>
+    {% endfor %}
     </p>
     <p>{{ form.submit() }}</p>
 </form>
