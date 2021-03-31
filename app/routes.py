@@ -1,5 +1,5 @@
-from flask import render_template, redirect, url_for, flash
-from app.forms import CadastroForm, RespostaForm
+from flask import render_template, redirect, url_for, flash, request
+from app.forms import CadastroForm, PerguntaForm
 from app import app, db
 from app.models import Perguntas, Respostas
 from random import choice, sample
@@ -39,23 +39,33 @@ def add():
     return render_template('cadastro.html', title='Cadastro', form=form)
 
 
-@app.route('/jogar', methods=['GET', 'POST'])
-def jogar():
-    form = RespostaForm()
-    if form.validate_on_submit():
-        print(of)
-        return redirect(url_for('jogar'))
+@app.route('/pergunta', methods=['GET', 'POST'])
+def pergunta():
     id_perguntas = []
+    # Pega todas as perguntas
     perguntas = Perguntas.query.all()
+    # Coloca o id das perguntas em uma lista
     for id in perguntas:
         id_perguntas.append(id.id)
+    # Sorteia uma pergunta
     pergunta = Perguntas.query.get(choice(id_perguntas))
+    # Pega as respostas da pergunta
     respostas = Respostas.query.filter_by(pergunta_id=pergunta.id)
     opcoes = []
     for resposta in respostas:
         temp = (resposta.id, resposta.resposta)
         opcoes.append(temp)
-    form = RespostaForm(respostas=sample(opcoes, k=4))
-    return render_template('pergunta.html', title=pergunta, pergunta=pergunta,
+    form = PerguntaForm(respostas=sample(opcoes, k=4))
+    if form.validate_on_submit():
+        print(form)
+        return redirect(url_for('pergunta'))
+    return render_template('pergunta.html', title='Pergunta', pergunta=pergunta,
                            respostas=respostas, form=form)
+
+
+@app.route('/corrigir', methods=['POST'])
+def corrigir():
+    print(request.data)
+    return redirect(url_for('index'))
+
 

@@ -6,7 +6,7 @@
 <p><h2>{{ pergunta.pergunta }}</h2></p>
 <form action="" method="post">
     {{ form.hidden_tag() }}
-    <h2>{{ form.resposta }}</h2>
+    <h2>{{ form.resposta(style="list-style:none") }}</h2>
     {% for error in form.resposta.errors %}
     <span style="color:red;">[{{ error }}]</span>
     {% endfor %}

@@ -23,7 +23,7 @@ class CadastroForm(FlaskForm):
     submit = SubmitField('Cadastrar')
 
 
-class RespostaForm(FlaskForm):
+class PerguntaForm(FlaskForm):
     resposta = RadioField('Resposta', choices=[
         ('resposta1', 'Resposta 1'),
         ('resposta2', 'Resposta 2'),
