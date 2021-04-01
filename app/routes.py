@@ -1,8 +1,10 @@
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, session
 from app.forms import CadastroForm, PerguntaForm
 from app import app, db
 from app.models import Perguntas, Respostas
 from random import choice, sample
+from wtforms import RadioField
+from wtforms.validators import DataRequired
 
 @app.route('/')
 def index():
@@ -39,9 +41,18 @@ def add():
     return render_template('cadastro.html', title='Cadastro', form=form)
 
 
-@app.route('/pergunta', methods=['GET', 'POST'])
-def pergunta():
-    id_perguntas = []
+@app.route('/pergunta/<pergunta>', methods=['GET', 'POST'])
+def pergunta(pergunta):
+    pergunta = Perguntas.query.get(pergunta)
+    form = PerguntaForm()
+    if form.validate_on_submit():
+        return redirect(url_for('corrigir', resposta=form.resposta.data))
+    return render_template('pergunta.html', title='Pergunta', pergunta=pergunta, form=form)
+
+
+@app.route('/gera_pergunta')
+def gera_pergunta():
+    id_perguntas, opcoes = [], []
     # Pega todas as perguntas
     perguntas = Perguntas.query.all()
     # Coloca o id das perguntas em uma lista
@@ -51,21 +62,18 @@ def pergunta():
     pergunta = Perguntas.query.get(choice(id_perguntas))
     # Pega as respostas da pergunta
     respostas = Respostas.query.filter_by(pergunta_id=pergunta.id)
-    opcoes = []
     for resposta in respostas:
         temp = (resposta.id, resposta.resposta)
         opcoes.append(temp)
-    form = PerguntaForm(respostas=sample(opcoes, k=4))
-    if form.validate_on_submit():
-        print(form)
-        return redirect(url_for('pergunta'))
-    return render_template('pergunta.html', title='Pergunta', pergunta=pergunta,
-                           respostas=respostas, form=form)
+    setattr(PerguntaForm, 'resposta', RadioField('Respostas', choices=sample(opcoes, k=4), validators=[DataRequired()]))
+    return redirect(url_for('pergunta', pergunta=pergunta.id))
 
 
-@app.route('/corrigir', methods=['POST'])
-def corrigir():
-    print(request.data)
-    return redirect(url_for('index'))
-
-
+@app.route('/corrigir/<resposta>')
+def corrigir(resposta):
+    valida = Respostas.query.get(resposta)
+    if valida.correta == True:
+        return render_template('acerto.html', title='Correção')
+    else:
+        session.clear()
+        return render_template('errou.html', title='Correção')

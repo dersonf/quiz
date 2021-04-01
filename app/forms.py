@@ -24,15 +24,15 @@ class CadastroForm(FlaskForm):
 
 
 class PerguntaForm(FlaskForm):
-    resposta = RadioField('Resposta', choices=[
-        ('resposta1', 'Resposta 1'),
-        ('resposta2', 'Resposta 2'),
-        ('resposta3', 'Resposta 3'),
-        ('resposta4', 'Resposta 4')
-        ])
+    # resposta = RadioField('Resposta', choices=[
+    #     ('resposta1', 'Resposta 1'),
+    #     ('resposta2', 'Resposta 2'),
+    #     ('resposta3', 'Resposta 3'),
+    #     ('resposta4', 'Resposta 4')
+    #     ])
     submit = SubmitField('Responder')
 
-    def __init__(self, respostas: list = None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.resposta.choices = respostas
+    # def __init__(self, respostas: list = None, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     self.resposta.choices = respostas
 

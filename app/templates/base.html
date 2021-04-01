@@ -11,7 +11,10 @@
 <br>
 <a href="{{ url_for('index') }}">Home</a> - 
 <a href="{{ url_for('add') }}">Adicionar</a> - 
-<a href="{{ url_for('pergunta') }}">Jogar</a> - 
+<a href="{{ url_for('gera_pergunta') }}">Iniciar</a> - 
 
 
 {% block content %}{% endblock content %}
+{% block footer %}
+<h4>{{ session.choices }}</h4>
+{% endblock %}
