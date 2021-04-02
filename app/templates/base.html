@@ -8,13 +8,14 @@
 </ul>
 {% endif %}
 {% endwith %}
-<br>
+<p>
 <a href="{{ url_for('index') }}">Home</a> - 
 <a href="{{ url_for('add') }}">Adicionar</a> - 
-<a href="{{ url_for('gera_pergunta') }}">Iniciar</a> - 
-
+<a href="{{ url_for('iniciar') }}">Iniciar</a> - 
+<a href="{{ url_for('consulta') }}">Consulta</a>
+</p>
+<h1>{{ title }}</h1>
 
 {% block content %}{% endblock content %}
 {% block footer %}
-<h4>{{ session.choices }}</h4>
 {% endblock %}

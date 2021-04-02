@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Correto!!!</h1>
+<h1>Pontuação: {{ session.get('pontos') }}</h1>
 <a href="{{ url_for('gera_pergunta') }}">Próxima</a>
 {% endblock %}

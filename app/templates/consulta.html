@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Edição de pergunta</h1>
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.pergunta_id.label }}
+        {{ form.pergunta_id(size=5) }}<br>
+        {% for error in form.pergunta_id.errors %}
+        <span style="color:red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    {% if form.pergunta_id.data %}
+    <p>pergunta: {{ pergunta.pergunta }} - <a href="{{ url_for('editar', tipo='pergunta', id=pergunta.id ) }}">editar</a></p>
+    {% for resposta in respostas %}
+    <p>resposta: {{ resposta.resposta }} - {{ resposta.correta }} - <a href="{{ url_for('editar', tipo='resposta', id=resposta.id ) }}">editar</a></p>
+    {% endfor %}
+    <p>Dificuldade: {{ pergunta.dificuldade }} - <a href="{{ url_for('editar', tipo='pergunta', id=pergunta.id ) }}">editar</a></p>
+    {% endif %}
+    <p>{{ form.submit() }}</p>
+</form>
+{% endblock %}
