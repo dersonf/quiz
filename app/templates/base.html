@@ -10,9 +10,11 @@
 {% endwith %}
 <p>
 <a href="{{ url_for('index') }}">Home</a> - 
+{% if not session.jogando %}
 <a href="{{ url_for('add') }}">Adicionar</a> - 
 <a href="{{ url_for('iniciar') }}">Iniciar</a> - 
 <a href="{{ url_for('consulta') }}">Consulta</a>
+{% endif %}
 </p>
 <h1>{{ title }}</h1>
 

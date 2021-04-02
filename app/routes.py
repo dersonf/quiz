@@ -21,6 +21,9 @@ from random import choice, sample
 from wtforms import RadioField
 from wtforms.validators import DataRequired
 import jinja2
+import logging
+
+# logging.basicConfig(level=logging.INFO)
 
 @app.route('/')
 def index():
@@ -29,6 +32,7 @@ def index():
 
 @app.route('/add', methods=['GET', 'POST'])
 def add():
+    """Função que cadastra pergunta"""
     form = CadastroForm()
     if form.validate_on_submit():
         p = Perguntas(pergunta=form.pergunta.data, dificuldade=form.dificuldade.data)
@@ -59,6 +63,7 @@ def add():
 
 @app.route('/pergunta/<pergunta>', methods=['GET', 'POST'])
 def pergunta(pergunta):
+    """Função que faz a pergunta e corrige"""
     pergunta = Perguntas.query.get(pergunta)
     form = PerguntaForm()
     if form.validate_on_submit():
@@ -68,14 +73,16 @@ def pergunta(pergunta):
 
 @app.route('/gera_pergunta')
 def gera_pergunta():
+    """Função que gera o form da pergunta"""
     id_perguntas, opcoes = [], []
     session['perguntas'] = session.get('perguntas')
     # Pega todas as perguntas
     perguntas = Perguntas.query.all()
-    # Coloca o id das perguntas em uma lista exceto as já perguntas
+    # Coloca o id das perguntas em uma lista exceto as já feitas
     for id in perguntas:
         if id.id not in session['perguntas']:
             id_perguntas.append(id.id)
+    # Se acabar todas as perguntas finaliza o jogo
     if not id_perguntas:
         return redirect('/corrigir/fim')
     # Sorteia uma pergunta
@@ -93,6 +100,7 @@ def gera_pergunta():
 
 @app.route('/corrigir/<resposta>')
 def corrigir(resposta):
+    """Função que corrige a pergunta"""
     if resposta == 'fim':
         session.clear()
         return render_template('index.html', title='Acabaram as perguntas. 500.000 pontos!!!')
@@ -100,23 +108,28 @@ def corrigir(resposta):
     pergunta = Perguntas.query.get(valida.pergunta_id)
     if valida.correta == True:
         session['pontos'] = session.get('pontos') + 1000
-        
         if pergunta.dificuldade >= 0:
             pergunta.dificuldade -= 1
             db.session.commit()
-        return render_template('acerto.html', title='Correto!!!')
+        return redirect(url_for('acertou'))
     else:
-        if pergunta.dificuldade <= 100:
+        if pergunta.dificuldade <= 400:
             pergunta.dificuldade += 1
             db.session.commit()
         pontos = session.get('pontos')
         nome = session.get('nome')
         session.clear()
-        return render_template('errou.html', title='Errou!!!', nome=nome, pontos=pontos)
+        return render_template('errou.html', title='Errou!!!', nome=nome, pontos=pontos, pergunta=pergunta, resposta=valida)
+
+
+@app.route('/acertou')
+def acertou():
+    return render_template('acerto.html', title='Correto!!!') 
 
 
 @app.route('/consulta', methods=['GET', 'POST'])
 def consulta():
+    """Função que faz a consulta no banco sobre a pergunta"""
     form = ConsultaForm()
     if form.validate_on_submit():
         try:
@@ -133,8 +146,10 @@ def consulta():
         flash("ID não existe.")
         return redirect(url_for('consulta'))
 
+
 @app.route('/editar/<tipo>/<id>', methods=['GET', 'POST'])
 def editar(tipo, id):
+    """Função para a edição da pergunta"""
     if tipo == 'pergunta':
         pergunta = Perguntas.query.get(id)
         form = EditaPerguntaForm()
@@ -162,13 +177,20 @@ def editar(tipo, id):
 
 @app.route('/iniciar', methods=['GET', 'POST'])
 def iniciar():
+    """Função para iniciar o jogo"""
     form = NomeForm()
     if form.validate_on_submit():
         session['nome'] = form.nome.data.title()
         session['pontos'] = 0
         session['perguntas'] = []
+        session['jogando'] = 1
         return redirect(url_for('gera_pergunta'))
     else:
         print(form.errors)
     return render_template('iniciar.html', title='Iniciar', form=form)
 
+
+# Decorator pra limpar a sessão
+# @session_clear
+# def clear_session():
+#     session.clear()

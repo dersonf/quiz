@@ -27,9 +27,10 @@ class CadastroForm(BotaoConfirma):
         ('resposta4', 'Resposta 4')
         ])
     dificuldade = SelectField('Dificuldade', choices=[
-        (0, 'Fácil'),
-        (33, 'Média'),
-        (66, 'Difícil'),
+        (0, 'Muito fácil'),
+        (100, 'Fácil'),
+        (200, 'Média'),
+        (300, 'Difícil'),
         ])
 
 
