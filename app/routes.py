@@ -58,7 +58,7 @@ def add():
         db.session.commit()
         flash('Pergunta cadastrada com sucesso!')
         return redirect(url_for('index'))
-    return render_template('cadastro.html', title='Cadastro', form=form)
+    return render_template('cadastro.html', title='Cadastro de pergunta', form=form)
 
 
 @app.route('/pergunta/<pergunta>', methods=['GET', 'POST'])
@@ -84,7 +84,7 @@ def gera_pergunta():
             id_perguntas.append(id.id)
     # Se acabar todas as perguntas finaliza o jogo
     if not id_perguntas:
-        return redirect('/corrigir/fim')
+        return redirect(url_for('fim'))
     # Sorteia uma pergunta
     pergunta = Perguntas.query.get(choice(id_perguntas))
     # Coloca na sessão perguntas já feitas
@@ -101,9 +101,6 @@ def gera_pergunta():
 @app.route('/corrigir/<resposta>')
 def corrigir(resposta):
     """Função que corrige a pergunta"""
-    if resposta == 'fim':
-        session.clear()
-        return render_template('index.html', title='Acabaram as perguntas. 500.000 pontos!!!')
     valida = Respostas.query.get(resposta)
     pergunta = Perguntas.query.get(valida.pergunta_id)
     if valida.correta == True:
@@ -119,7 +116,7 @@ def corrigir(resposta):
         pontos = session.get('pontos')
         nome = session.get('nome')
         session.clear()
-        return render_template('errou.html', title='Errou!!!', nome=nome, pontos=pontos, pergunta=pergunta, resposta=valida)
+        return render_template('fim.html', title='Resposta incorreta!!!', nome=nome, pontos=pontos, pergunta=pergunta, resposta=valida)
 
 
 @app.route('/acertou')
@@ -141,7 +138,7 @@ def consulta():
         else:
             return redirect(url_for('consulta'))
     try:
-        return render_template('consulta.html', title='Editar', form=form)
+        return render_template('consulta.html', title='Edição de pergunta', form=form)
     except jinja2.exceptions.UndefinedError:
         flash("ID não existe.")
         return redirect(url_for('consulta'))
@@ -188,6 +185,15 @@ def iniciar():
     else:
         print(form.errors)
     return render_template('iniciar.html', title='Iniciar', form=form)
+
+
+@app.route('/fim')
+def fim():
+    """Finaliza jogo em andamento"""
+    nome = session.get('nome')
+    pontos = session.get('pontos')
+    session.clear()
+    return render_template('fim.html', title='Fim de jogo', nome=nome, pontos=pontos)
 
 
 # Decorator pra limpar a sessão

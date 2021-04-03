@@ -1,11 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Que pena, errou!!!</h1>
 <h1>{{ nome }}, você conseguiu {{ pontos }} pontos!!!</h1>
+{% if resposta %}
 <h3>
     <p>{{ resposta.resposta }} não é respota correta da pergunta {{ pergunta.pergunta }}</p>
     <p>Para reportar erros o ID da pergunta é {{ pergunta.id }}.</p>
 </h3>
+{% endif %}
 <a href="{{ url_for('index') }}">Voltar</a>
 {% endblock %}
