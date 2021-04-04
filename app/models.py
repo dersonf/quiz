@@ -6,6 +6,7 @@ class Perguntas(db.Model):
     id = db.Column(db.Integer, unique=True ,primary_key=True)
     pergunta = db.Column(db.String(140))
     dificuldade = db.Column(db.Integer, default=0)
+    classe = db.Column(db.String(1), default='D')
 
 
 class Respostas(db.Model):

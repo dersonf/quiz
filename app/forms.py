@@ -32,7 +32,12 @@ class CadastroForm(BotaoConfirma):
         (200, 'Média'),
         (300, 'Difícil'),
         ])
-
+    classe = SelectField('Classe', choices=[
+        ('D', 'Muito fácil'),
+        ('C', 'Fácil'),
+        ('B', 'Média'),
+        ('A', 'Difícil'),
+        ])
 
 class PerguntaForm(FlaskForm):
     submit = SubmitField('Responder')
@@ -45,6 +50,7 @@ class ConsultaForm(BotaoConfirma):
 class EditaPerguntaForm(BotaoConfirma):
     pergunta = StringField('Pergunta', [DataRequired()])
     dificuldade = IntegerField('Dificuldade', [DataRequired()])
+    classe = StringField('Classe', [DataRequired()])
 
 
 class EditaRespostaForm(BotaoConfirma):

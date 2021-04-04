@@ -16,6 +16,7 @@
     <p>resposta: {{ resposta.resposta }} - {{ resposta.correta }} - <a href="{{ url_for('editar', tipo='resposta', id=resposta.id ) }}">editar</a></p>
     {% endfor %}
     <p>Dificuldade: {{ pergunta.dificuldade }} - <a href="{{ url_for('editar', tipo='pergunta', id=pergunta.id ) }}">editar</a></p>
+    <p>Classe: {{ pergunta.classe }} - <a href="{{ url_for('editar', tipo='pergunta', id=pergunta.id ) }}">editar</a></p>
     {% endif %}
     <p>{{ form.submit() }}</p>
 </form>

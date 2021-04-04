@@ -35,7 +35,11 @@ def add():
     """Função que cadastra pergunta"""
     form = CadastroForm()
     if form.validate_on_submit():
-        p = Perguntas(pergunta=form.pergunta.data, dificuldade=form.dificuldade.data)
+        p = Perguntas(
+            pergunta=form.pergunta.data,
+            dificuldade=form.dificuldade.data,
+            classe=form.classe.data
+            )
         db.session.add(p)
         db.session.commit()
         if form.correta.data == 'resposta1':
@@ -76,8 +80,8 @@ def gera_pergunta():
     """Função que gera o form da pergunta"""
     id_perguntas, opcoes = [], []
     session['perguntas'] = session.get('perguntas')
-    # Pega todas as perguntas
-    perguntas = Perguntas.query.all()
+    # Pega todas as perguntas do nivel
+    perguntas = Perguntas.query.filter_by(classe=session.get('nivel'))
     # Coloca o id das perguntas em uma lista exceto as já feitas
     for id in perguntas:
         if id.id not in session['perguntas']:
@@ -104,7 +108,12 @@ def corrigir(resposta):
     valida = Respostas.query.get(resposta)
     pergunta = Perguntas.query.get(valida.pergunta_id)
     if valida.correta == True:
-        session['pontos'] = session.get('pontos') + 1000
+        session['pontos'] = session.get('pontos') + (1000 * session.get('multiplicador'))
+        # Aumenta a dificuldade a cada quantidade de perguntas
+        if len(session.get('perguntas')) = 5:
+            session['nivel'] = 'C'
+            session['multiplicador'] = 2
+            flash('Aumentando o nivel!!!')
         if pergunta.dificuldade >= 0:
             pergunta.dificuldade -= 1
             db.session.commit()
@@ -132,7 +141,8 @@ def consulta():
         try:
             pergunta = Perguntas.query.get(form.pergunta_id.data)
             respostas = Respostas.query.filter_by(pergunta_id=pergunta.id)
-            return render_template('consulta.html', title='Editar', form=form, pergunta=pergunta, respostas=respostas)
+            return render_template('consulta.html', title='Editar', form=form,
+                pergunta=pergunta, respostas=respostas)
         except AttributeError:
             flash("ID não existe.")
         else:
@@ -157,6 +167,7 @@ def editar(tipo, id):
         if tipo == 'pergunta':
             pergunta.pergunta = form.pergunta.data
             pergunta.dificuldade = form.dificuldade.data
+            pergunta.classe = form.classe.data
         elif tipo == 'resposta':
             resposta.resposta = form.resposta.data
             resposta.correta = form.correta.data
@@ -181,6 +192,8 @@ def iniciar():
         session['pontos'] = 0
         session['perguntas'] = []
         session['jogando'] = 1
+        session['nivel'] = 'D'
+        session['multiplicador'] = 1
         return redirect(url_for('gera_pergunta'))
     else:
         print(form.errors)
