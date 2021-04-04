@@ -110,7 +110,7 @@ def corrigir(resposta):
     if valida.correta == True:
         session['pontos'] = session.get('pontos') + (1000 * session.get('multiplicador'))
         # Aumenta a dificuldade a cada quantidade de perguntas
-        if len(session.get('perguntas')) = 5:
+        if len(session.get('perguntas')) == 5:
             session['nivel'] = 'C'
             session['multiplicador'] = 2
             flash('Aumentando o nivel!!!')
