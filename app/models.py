@@ -3,7 +3,7 @@ from app import db, app
 
 class Perguntas(db.Model):
     'Tabela das perguntas'
-    id = db.Column(db.Integer, unique=True ,primary_key=True)
+    id = db.Column(db.Integer, unique=True, primary_key=True)
     pergunta = db.Column(db.String(140))
     dificuldade = db.Column(db.Integer, default=0)
     classe = db.Column(db.String(1), default='D')

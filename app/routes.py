@@ -5,7 +5,6 @@ from flask import (
     flash,
     request,
     session,
-    abort,
 )
 from app.forms import (
     CadastroForm,
@@ -25,6 +24,7 @@ import logging
 
 # logging.basicConfig(level=logging.INFO)
 
+
 @app.route('/')
 def index():
     return render_template('index.html', title='Home')
@@ -42,8 +42,6 @@ def iniciar():
         session['nivel'] = 'D'
         session['multiplicador'] = 1
         return redirect(url_for('gera_pergunta'))
-    else:
-        print(form.errors)
     return render_template('iniciar.html', title='Iniciar', form=form)
 
 
@@ -83,13 +81,17 @@ def _sorteia_pergunta():
 
 @app.route('/pergunta/<pergunta>', methods=['GET', 'POST'])
 def pergunta(pergunta):
-    """Função que faz a pergunta e corrige"""
+    """Função que faz a pergunta"""
     pergunta = Perguntas.query.get(pergunta)
-    setattr(PerguntaForm, 'resposta', RadioField('Respostas', choices=sample(session.get('opcoes'), k=4), validators=[DataRequired()]))
+    setattr(PerguntaForm, 'resposta', RadioField(
+        'Respostas',
+        choices=sample(session.get('opcoes'), k=4),
+        validators=[DataRequired()]))
     form = PerguntaForm()
     if form.validate_on_submit():
         return redirect(url_for('corrigir', resposta=form.resposta.data))
-    return render_template('pergunta.html', title='Pergunta:', pergunta=pergunta, form=form)
+    return render_template('pergunta.html', title='Pergunta:',
+                           pergunta=pergunta, form=form)
 
 
 @app.route('/corrigir/<resposta>')
@@ -97,8 +99,9 @@ def corrigir(resposta):
     """Função que corrige a pergunta"""
     valida = Respostas.query.get(resposta)
     pergunta = Perguntas.query.get(valida.pergunta_id)
-    if valida.correta == True:
-        session['pontos'] = session.get('pontos') + (1000 * session.get('multiplicador'))
+    if valida.correta is True:
+        session['pontos'] = session.get('pontos') + \
+            (1000 * session.get('multiplicador'))
         # Aumenta a dificuldade a cada quantidade de perguntas
         if len(session.get('perguntas')) == 5:
             session['nivel'] = 'C'
@@ -115,12 +118,14 @@ def corrigir(resposta):
         pontos = session.get('pontos')
         nome = session.get('nome')
         session.clear()
-        return render_template('fim.html', title='Resposta incorreta!!!', nome=nome, pontos=pontos, pergunta=pergunta, resposta=valida)
+        return render_template('fim.html', title='Resposta incorreta!!!',
+                               nome=nome, pontos=pontos, pergunta=pergunta,
+                               resposta=valida)
 
 
 @app.route('/acertou')
 def acertou():
-    return render_template('acerto.html', title='Correto!!!') 
+    return render_template('acerto.html', title='Correto!!!')
 
 
 @app.route('/fim')
@@ -129,7 +134,8 @@ def fim():
     nome = session.get('nome')
     pontos = session.get('pontos')
     session.clear()
-    return render_template('fim.html', title='Fim de jogo', nome=nome, pontos=pontos)
+    return render_template('fim.html', title='Fim de jogo', nome=nome,
+                           pontos=pontos)
 
 
 @app.route('/add', methods=['GET', 'POST'])
@@ -138,33 +144,42 @@ def add():
     form = CadastroForm()
     if form.validate_on_submit():
         p = Perguntas(
-            pergunta=form.pergunta.data,
-            dificuldade=form.dificuldade.data,
-            classe=form.classe.data
+                pergunta=form.pergunta.data,
+                dificuldade=form.dificuldade.data,
+                classe=form.classe.data
             )
         db.session.add(p)
         db.session.commit()
         if form.correta.data == 'resposta1':
-            resposta1 = Respostas(resposta=form.resposta1.data, pergunta_id=p.id, correta=True)
+            resposta1 = Respostas(resposta=form.resposta1.data,
+                                  pergunta_id=p.id, correta=True)
         else:
-            resposta1 = Respostas(resposta=form.resposta1.data, pergunta_id=p.id)
+            resposta1 = Respostas(resposta=form.resposta1.data,
+                                  pergunta_id=p.id)
         if form.correta.data == 'resposta2':
-            resposta2 = Respostas(resposta=form.resposta2.data, pergunta_id=p.id, correta=True)
+            resposta2 = Respostas(resposta=form.resposta2.data,
+                                  pergunta_id=p.id, correta=True)
         else:
-            resposta2 = Respostas(resposta=form.resposta2.data, pergunta_id=p.id)
+            resposta2 = Respostas(resposta=form.resposta2.data,
+                                  pergunta_id=p.id)
         if form.correta.data == 'resposta3':
-            resposta3 = Respostas(resposta=form.resposta3.data, pergunta_id=p.id, correta=True)
+            resposta3 = Respostas(resposta=form.resposta3.data,
+                                  pergunta_id=p.id, correta=True)
         else:
-            resposta3 = Respostas(resposta=form.resposta3.data, pergunta_id=p.id)
+            resposta3 = Respostas(resposta=form.resposta3.data,
+                                  pergunta_id=p.id)
         if form.correta.data == 'resposta4':
-            resposta4 = Respostas(resposta=form.resposta4.data, pergunta_id=p.id, correta=True)
+            resposta4 = Respostas(resposta=form.resposta4.data,
+                                  pergunta_id=p.id, correta=True)
         else:
-            resposta4 = Respostas(resposta=form.resposta4.data, pergunta_id=p.id)
+            resposta4 = Respostas(resposta=form.resposta4.data,
+                                  pergunta_id=p.id)
         db.session.add_all([resposta1, resposta2, resposta3, resposta4])
         db.session.commit()
         flash('Pergunta cadastrada com sucesso!')
         return redirect(url_for('index'))
-    return render_template('cadastro.html', title='Cadastro de pergunta', form=form)
+    return render_template('cadastro.html', title='Cadastro de pergunta',
+                           form=form)
 
 
 @app.route('/consulta', methods=['GET', 'POST'])
@@ -176,13 +191,14 @@ def consulta():
             pergunta = Perguntas.query.get(form.pergunta_id.data)
             respostas = Respostas.query.filter_by(pergunta_id=pergunta.id)
             return render_template('consulta.html', title='Editar', form=form,
-                pergunta=pergunta, respostas=respostas)
+                                   pergunta=pergunta, respostas=respostas)
         except AttributeError:
             flash("ID não existe.")
         else:
             return redirect(url_for('consulta'))
     try:
-        return render_template('consulta.html', title='Edição de pergunta', form=form)
+        return render_template('consulta.html', title='Edição de pergunta',
+                               form=form)
     except jinja2.exceptions.UndefinedError:
         flash("ID não existe.")
         return redirect(url_for('consulta'))
@@ -211,7 +227,7 @@ def editar(tipo, id):
     if tipo == 'pergunta':
         form.pergunta.data = pergunta.pergunta
         form.dificuldade.data = pergunta.dificuldade
-    elif tipo == 'resposta':        
+    elif tipo == 'resposta':
         form.resposta.data = resposta.resposta
         form.correta.data = resposta.correta
     return render_template('edita_pergunta.html', form=form)

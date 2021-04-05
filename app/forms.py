@@ -39,6 +39,7 @@ class CadastroForm(BotaoConfirma):
         ('A', 'Difícil'),
         ])
 
+
 class PerguntaForm(FlaskForm):
     submit = SubmitField('Responder')
 
