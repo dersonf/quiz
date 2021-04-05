@@ -30,6 +30,101 @@ def index():
     return render_template('index.html', title='Home')
 
 
+@app.route('/iniciar', methods=['GET', 'POST'])
+def iniciar():
+    """Função para iniciar o jogo"""
+    form = NomeForm()
+    if form.validate_on_submit():
+        session['nome'] = form.nome.data.title()
+        session['pontos'] = 0
+        session['perguntas'] = []
+        session['jogando'] = 1
+        session['nivel'] = 'D'
+        session['multiplicador'] = 1
+        return redirect(url_for('gera_pergunta'))
+    else:
+        print(form.errors)
+    return render_template('iniciar.html', title='Iniciar', form=form)
+
+
+@app.route('/gera_pergunta')
+def gera_pergunta():
+    """Função que gera o form da pergunta"""
+    id_perguntas, opcoes = [], []
+    # Perguntas já feitas
+    session['perguntas'] = session.get('perguntas')
+    # Pega todas as perguntas do nivel
+    perguntas = Perguntas.query.filter_by(classe=session.get('nivel'))
+    # Coloca o id das perguntas em uma lista exceto as já feitas
+    for id in perguntas:
+        if id.id not in session['perguntas']:
+            id_perguntas.append(id.id)
+    # Se acabar todas as perguntas finaliza o jogo
+    if not id_perguntas:
+        return redirect(url_for('fim'))
+    # Sorteia uma pergunta
+    pergunta = Perguntas.query.get(choice(id_perguntas))
+    # Coloca na sessão perguntas já feitas
+    session['perguntas'].append(pergunta.id)
+    # Pega as respostas da pergunta
+    respostas = Respostas.query.filter_by(pergunta_id=pergunta.id)
+    for resposta in respostas:
+        temp = (resposta.id, resposta.resposta)
+        opcoes.append(temp)
+    setattr(PerguntaForm, 'resposta', RadioField('Respostas', choices=sample(opcoes, k=4), validators=[DataRequired()]))
+    return redirect(url_for('pergunta', pergunta=pergunta.id))
+
+
+@app.route('/pergunta/<pergunta>', methods=['GET', 'POST'])
+def pergunta(pergunta):
+    """Função que faz a pergunta e corrige"""
+    pergunta = Perguntas.query.get(pergunta)
+    form = PerguntaForm()
+    if form.validate_on_submit():
+        return redirect(url_for('corrigir', resposta=form.resposta.data))
+    return render_template('pergunta.html', title='Pergunta:', pergunta=pergunta, form=form)
+
+
+@app.route('/corrigir/<resposta>')
+def corrigir(resposta):
+    """Função que corrige a pergunta"""
+    valida = Respostas.query.get(resposta)
+    pergunta = Perguntas.query.get(valida.pergunta_id)
+    if valida.correta == True:
+        session['pontos'] = session.get('pontos') + (1000 * session.get('multiplicador'))
+        # Aumenta a dificuldade a cada quantidade de perguntas
+        if len(session.get('perguntas')) == 5:
+            session['nivel'] = 'C'
+            session['multiplicador'] = 2
+            flash('Aumentando o nivel!!!')
+        if pergunta.dificuldade >= 0:
+            pergunta.dificuldade -= 1
+            db.session.commit()
+        return redirect(url_for('acertou'))
+    else:
+        if pergunta.dificuldade <= 400:
+            pergunta.dificuldade += 1
+            db.session.commit()
+        pontos = session.get('pontos')
+        nome = session.get('nome')
+        session.clear()
+        return render_template('fim.html', title='Resposta incorreta!!!', nome=nome, pontos=pontos, pergunta=pergunta, resposta=valida)
+
+
+@app.route('/acertou')
+def acertou():
+    return render_template('acerto.html', title='Correto!!!') 
+
+
+@app.route('/fim')
+def fim():
+    """Finaliza jogo em andamento"""
+    nome = session.get('nome')
+    pontos = session.get('pontos')
+    session.clear()
+    return render_template('fim.html', title='Fim de jogo', nome=nome, pontos=pontos)
+
+
 @app.route('/add', methods=['GET', 'POST'])
 def add():
     """Função que cadastra pergunta"""
@@ -63,74 +158,6 @@ def add():
         flash('Pergunta cadastrada com sucesso!')
         return redirect(url_for('index'))
     return render_template('cadastro.html', title='Cadastro de pergunta', form=form)
-
-
-@app.route('/pergunta/<pergunta>', methods=['GET', 'POST'])
-def pergunta(pergunta):
-    """Função que faz a pergunta e corrige"""
-    pergunta = Perguntas.query.get(pergunta)
-    form = PerguntaForm()
-    if form.validate_on_submit():
-        return redirect(url_for('corrigir', resposta=form.resposta.data))
-    return render_template('pergunta.html', title='Pergunta:', pergunta=pergunta, form=form)
-
-
-@app.route('/gera_pergunta')
-def gera_pergunta():
-    """Função que gera o form da pergunta"""
-    id_perguntas, opcoes = [], []
-    session['perguntas'] = session.get('perguntas')
-    # Pega todas as perguntas do nivel
-    perguntas = Perguntas.query.filter_by(classe=session.get('nivel'))
-    # Coloca o id das perguntas em uma lista exceto as já feitas
-    for id in perguntas:
-        if id.id not in session['perguntas']:
-            id_perguntas.append(id.id)
-    # Se acabar todas as perguntas finaliza o jogo
-    if not id_perguntas:
-        return redirect(url_for('fim'))
-    # Sorteia uma pergunta
-    pergunta = Perguntas.query.get(choice(id_perguntas))
-    # Coloca na sessão perguntas já feitas
-    session['perguntas'].append(pergunta.id)
-    # Pega as respostas da pergunta
-    respostas = Respostas.query.filter_by(pergunta_id=pergunta.id)
-    for resposta in respostas:
-        temp = (resposta.id, resposta.resposta)
-        opcoes.append(temp)
-    setattr(PerguntaForm, 'resposta', RadioField('Respostas', choices=sample(opcoes, k=4), validators=[DataRequired()]))
-    return redirect(url_for('pergunta', pergunta=pergunta.id))
-
-
-@app.route('/corrigir/<resposta>')
-def corrigir(resposta):
-    """Função que corrige a pergunta"""
-    valida = Respostas.query.get(resposta)
-    pergunta = Perguntas.query.get(valida.pergunta_id)
-    if valida.correta == True:
-        session['pontos'] = session.get('pontos') + (1000 * session.get('multiplicador'))
-        # Aumenta a dificuldade a cada quantidade de perguntas
-        if len(session.get('perguntas')) == 5:
-            session['nivel'] = 'C'
-            session['multiplicador'] = 2
-            flash('Aumentando o nivel!!!')
-        if pergunta.dificuldade >= 0:
-            pergunta.dificuldade -= 1
-            db.session.commit()
-        return redirect(url_for('acertou'))
-    else:
-        if pergunta.dificuldade <= 400:
-            pergunta.dificuldade += 1
-            db.session.commit()
-        pontos = session.get('pontos')
-        nome = session.get('nome')
-        session.clear()
-        return render_template('fim.html', title='Resposta incorreta!!!', nome=nome, pontos=pontos, pergunta=pergunta, resposta=valida)
-
-
-@app.route('/acertou')
-def acertou():
-    return render_template('acerto.html', title='Correto!!!') 
 
 
 @app.route('/consulta', methods=['GET', 'POST'])
@@ -181,35 +208,3 @@ def editar(tipo, id):
         form.resposta.data = resposta.resposta
         form.correta.data = resposta.correta
     return render_template('edita_pergunta.html', form=form)
-
-
-@app.route('/iniciar', methods=['GET', 'POST'])
-def iniciar():
-    """Função para iniciar o jogo"""
-    form = NomeForm()
-    if form.validate_on_submit():
-        session['nome'] = form.nome.data.title()
-        session['pontos'] = 0
-        session['perguntas'] = []
-        session['jogando'] = 1
-        session['nivel'] = 'D'
-        session['multiplicador'] = 1
-        return redirect(url_for('gera_pergunta'))
-    else:
-        print(form.errors)
-    return render_template('iniciar.html', title='Iniciar', form=form)
-
-
-@app.route('/fim')
-def fim():
-    """Finaliza jogo em andamento"""
-    nome = session.get('nome')
-    pontos = session.get('pontos')
-    session.clear()
-    return render_template('fim.html', title='Fim de jogo', nome=nome, pontos=pontos)
-
-
-# Decorator pra limpar a sessão
-# @session_clear
-# def clear_session():
-#     session.clear()
