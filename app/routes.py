@@ -50,7 +50,19 @@ def iniciar():
 @app.route('/gera_pergunta')
 def gera_pergunta():
     """Função que gera o form da pergunta"""
-    id_perguntas, opcoes = [], []
+    session['opcoes'] = []
+    pergunta = _sorteia_pergunta()
+    # Pega as respostas da pergunta
+    respostas = Respostas.query.filter_by(pergunta_id=pergunta.id)
+    for resposta in respostas:
+        # temp = (resposta.id, resposta.resposta)
+        session['opcoes'].append((resposta.id, resposta.resposta))
+    return redirect(url_for('pergunta', pergunta=pergunta.id))
+
+
+def _sorteia_pergunta():
+    """Sorteia uma pergunta que não foi feita na sessão."""
+    id_perguntas = []
     # Perguntas já feitas
     session['perguntas'] = session.get('perguntas')
     # Pega todas as perguntas do nivel
@@ -66,19 +78,14 @@ def gera_pergunta():
     pergunta = Perguntas.query.get(choice(id_perguntas))
     # Coloca na sessão perguntas já feitas
     session['perguntas'].append(pergunta.id)
-    # Pega as respostas da pergunta
-    respostas = Respostas.query.filter_by(pergunta_id=pergunta.id)
-    for resposta in respostas:
-        temp = (resposta.id, resposta.resposta)
-        opcoes.append(temp)
-    setattr(PerguntaForm, 'resposta', RadioField('Respostas', choices=sample(opcoes, k=4), validators=[DataRequired()]))
-    return redirect(url_for('pergunta', pergunta=pergunta.id))
+    return pergunta
 
 
 @app.route('/pergunta/<pergunta>', methods=['GET', 'POST'])
 def pergunta(pergunta):
     """Função que faz a pergunta e corrige"""
     pergunta = Perguntas.query.get(pergunta)
+    setattr(PerguntaForm, 'resposta', RadioField('Respostas', choices=sample(session.get('opcoes'), k=4), validators=[DataRequired()]))
     form = PerguntaForm()
     if form.validate_on_submit():
         return redirect(url_for('corrigir', resposta=form.resposta.data))
