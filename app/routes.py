@@ -82,6 +82,9 @@ def _sorteia_pergunta():
 @app.route('/pergunta/<pergunta>', methods=['GET', 'POST'])
 def pergunta(pergunta):
     """Função que faz a pergunta"""
+    if pergunta in session.get('perguntas'):
+        print('Pergunta repetida ou esta roubando')
+        return redirect(url_for('gera_pergunta'))
     pergunta = Perguntas.query.get(pergunta)
     setattr(PerguntaForm, 'resposta', RadioField(
         'Respostas',
@@ -107,6 +110,14 @@ def corrigir(resposta):
             session['nivel'] = 'C'
             session['multiplicador'] = 2
             flash('Aumentando o nivel!!!')
+        elif len(session.get('perguntas')) == 10:
+            session['nivel'] = 'B'
+            session['multiplicador'] = 3
+            flash('Aumentando o nível!!!')
+        elif len(session.get('perguntas')) == 15:
+            session['nivel'] = 'A'
+            session['multiplicador'] = 4
+            flash('Aumentando para o nível mais alto!!!')
         if pergunta.dificuldade >= 0:
             pergunta.dificuldade -= 1
             db.session.commit()
