@@ -20,10 +20,6 @@ from random import choice, sample
 from wtforms import RadioField
 from wtforms.validators import DataRequired
 import jinja2
-import logging
-
-# logging.basicConfig(level=logging.INFO)
-
 
 @app.route('/')
 def index():
@@ -53,39 +49,34 @@ def gera_pergunta():
     # Pega as respostas da pergunta
     respostas = Respostas.query.filter_by(pergunta_id=pergunta.id)
     for resposta in respostas:
-        # temp = (resposta.id, resposta.resposta)
         session['opcoes'].append((resposta.id, resposta.resposta))
     return redirect(url_for('pergunta', pergunta=pergunta.id))
 
 
 def _sorteia_pergunta():
     """Sorteia uma pergunta que não foi feita na sessão."""
-    id_perguntas = []
-    # Perguntas já feitas
-    session['perguntas'] = session.get('perguntas')
+    id_perguntas = []    
     # Pega todas as perguntas do nivel
     perguntas = Perguntas.query.filter_by(classe=session.get('nivel'))
     # Coloca o id das perguntas em uma lista exceto as já feitas
-    for id in perguntas:
-        if id.id not in session['perguntas']:
-            id_perguntas.append(id.id)
+    for pergunta in perguntas:
+        if pergunta.id not in session.get('perguntas'):
+            id_perguntas.append(pergunta.id)
     # Se acabar todas as perguntas finaliza o jogo
     if not id_perguntas:
         return redirect(url_for('fim'))
-    # Sorteia uma pergunta
-    pergunta = Perguntas.query.get(choice(id_perguntas))
-    # Coloca na sessão perguntas já feitas
-    session['perguntas'].append(pergunta.id)
-    return pergunta
+    # Sorteia uma pergunta e retorna ela
+    return Perguntas.query.get(choice(id_perguntas))
 
 
 @app.route('/pergunta/<pergunta>', methods=['GET', 'POST'])
 def pergunta(pergunta):
     """Função que faz a pergunta"""
-    if pergunta in session.get('perguntas'):
-        print('Pergunta repetida ou esta roubando')
+    # Valida se a pergunta já foi feita
+    if int(pergunta) in session.get('perguntas'):
+        app.logger.info('Deve ter tentado roubar')
+        session['nivel'] = 'A'
         return redirect(url_for('gera_pergunta'))
-    pergunta = Perguntas.query.get(pergunta)
     setattr(PerguntaForm, 'resposta', RadioField(
         'Respostas',
         choices=sample(session.get('opcoes'), k=4),
@@ -93,6 +84,7 @@ def pergunta(pergunta):
     form = PerguntaForm()
     if form.validate_on_submit():
         return redirect(url_for('corrigir', resposta=form.resposta.data))
+    pergunta = Perguntas.query.get(pergunta)
     return render_template('pergunta.html', title='Pergunta:',
                            pergunta=pergunta, form=form)
 
@@ -102,6 +94,9 @@ def corrigir(resposta):
     """Função que corrige a pergunta"""
     valida = Respostas.query.get(resposta)
     pergunta = Perguntas.query.get(valida.pergunta_id)
+    # Adiciona a pergunta feita a lista das já perguntadas
+    session['perguntas'] = session.get('perguntas')
+    session['perguntas'].append(pergunta.id)
     if valida.correta is True:
         session['pontos'] = session.get('pontos') + \
             (1000 * session.get('multiplicador'))
@@ -238,6 +233,7 @@ def editar(tipo, id):
     if tipo == 'pergunta':
         form.pergunta.data = pergunta.pergunta
         form.dificuldade.data = pergunta.dificuldade
+        form.classe.data = pergunta.classe
     elif tipo == 'resposta':
         form.resposta.data = resposta.resposta
         form.correta.data = resposta.correta
