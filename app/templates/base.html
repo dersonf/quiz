@@ -14,8 +14,8 @@
 {% endif %}
 {% if not session.jogando %}
 <a href="{{ url_for('index') }}">Home</a> - 
-<a href="{{ url_for('add') }}">Adicionar</a> - 
 <a href="{{ url_for('iniciar') }}">Iniciar</a> - 
+<a href="{{ url_for('add') }}">Adicionar</a> - 
 <a href="{{ url_for('consulta') }}">Consulta</a>
 {% endif %}
 </p>
@@ -23,5 +23,6 @@
 
 {% block content %}{% endblock content %}
 {% block footer %}
-<br>{{ session.perguntas }}
+<br>
+<p><a href="http://ferneda.com.br">ferneda.com.br</a></p>
 {% endblock %}

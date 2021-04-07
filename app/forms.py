@@ -6,6 +6,7 @@ from wtforms import (
     SelectField,
     RadioField,
     IntegerField,
+    PasswordField,
 )
 from wtforms.validators import DataRequired
 
@@ -62,3 +63,8 @@ class EditaRespostaForm(BotaoConfirma):
 class NomeForm(FlaskForm):
     nome = StringField('Nome', [DataRequired()])
     iniciar = SubmitField('Iniciar')
+
+
+class LoginForm(BotaoConfirma):
+    usuario = StringField('Usuário', [DataRequired()])
+    senha = PasswordField('Senha', [DataRequired()])

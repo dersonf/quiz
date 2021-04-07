@@ -13,6 +13,7 @@ from app.forms import (
     EditaPerguntaForm,
     EditaRespostaForm,
     NomeForm,
+    LoginForm,
 )
 from app import app, db
 from app.models import Perguntas, Respostas
@@ -50,7 +51,8 @@ def gera_pergunta():
     respostas = Respostas.query.filter_by(pergunta_id=pergunta.id)
     for resposta in respostas:
         session['opcoes'].append((resposta.id, resposta.resposta))
-    return redirect(url_for('pergunta', pergunta=pergunta.id))
+    session['pergunta_id'] = pergunta.id
+    return redirect(url_for('pergunta'))
 
 
 def _sorteia_pergunta():
@@ -69,10 +71,11 @@ def _sorteia_pergunta():
     return Perguntas.query.get(choice(id_perguntas))
 
 
-@app.route('/pergunta/<pergunta>', methods=['GET', 'POST'])
-def pergunta(pergunta):
+@app.route('/pergunta', methods=['GET', 'POST'])
+def pergunta():
     """Função que faz a pergunta"""
     # Valida se a pergunta já foi feita
+    pergunta = session.get('pergunta_id')
     if int(pergunta) in session.get('perguntas'):
         app.logger.info('Deve ter tentado roubar')
         session['nivel'] = 'A'
@@ -142,6 +145,15 @@ def fim():
     session.clear()
     return render_template('fim.html', title='Fim de jogo', nome=nome,
                            pontos=pontos)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Faz o login pra administração"""
+    form = LoginForm()
+    if form.validate_on_submit:
+        return redirect(url_for('index'))
+    return render_template('login.html', title='Login', form=form)
 
 
 @app.route('/add', methods=['GET', 'POST'])
