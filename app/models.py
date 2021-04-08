@@ -1,3 +1,4 @@
+from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, app
 
 
@@ -23,3 +24,11 @@ class Usuarios(db.Model):
     username = db.Column(db.String(14), unique=True)
     fullname = db.Column(db.String(100), nullable=False)
     password = db.Column(db.String(200), nullable=False)
+
+    def define_senha(self, password):
+        """Define a hash do usuario"""
+        self.password = generate_password_hash(password)
+
+    def valida_senha(self, password):
+        """Valida a senha"""
+        return check_password_hash(self.password, password)

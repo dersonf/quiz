@@ -8,6 +8,10 @@ senha = getpass(prompt='Senha: ')
 confirmasenha = getpass(prompt='Repita a senha: ')
 
 if senha != confirmasenha:
-    print("As senhas são diferentes")
+    print("As senhas são diferentes!")
 else:
-    print('OK')
+    usuario = Usuarios(username=username, fullname=fullname)
+    usuario.define_senha(password=senha)
+    db.session.add(usuario)
+    db.session.commit()
+    print(f"Usuário {username} criado com sucesso!")

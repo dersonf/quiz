@@ -16,7 +16,7 @@ from app.forms import (
     LoginForm,
 )
 from app import app, db
-from app.models import Perguntas, Respostas
+from app.models import Perguntas, Respostas, Usuarios
 from random import choice, sample
 from wtforms import RadioField
 from wtforms.validators import DataRequired
@@ -151,7 +151,13 @@ def fim():
 def login():
     """Faz o login pra administração"""
     form = LoginForm()
-    if form.validate_on_submit:
+    if form.validate_on_submit():
+        usuario = Usuarios.query.filter_by(username=form.usuario.data).first()
+        app.logger.info(f"Autenticou {usuario.username}")
+        if usuario.valida_senha(form.senha.data) is True:
+            flash('Usuário autenticado com sucesso!')
+        else:
+            flash('Usuario e senha incorretos!')
         return redirect(url_for('index'))
     return render_template('login.html', title='Login', form=form)
 
