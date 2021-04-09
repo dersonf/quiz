@@ -1,4 +1,15 @@
-<h1>Quiz do Ferneda</h1>
+{% extends 'bootstrap/base.html' %}
+
+{% block title %}
+Quiz em Flask{% if title %} - {{ title }}{% endif %}
+{% endblock %}
+
+{% block navbar %}
+<div class="navbar navbar-fixed-top">
+  <!-- ... -->
+</div>
+{% endblock %}
+
 {% with messages = get_flashed_messages() %}
 {% if messages %}
 <ul>
@@ -23,8 +34,6 @@
 <a href="{{ url_for('login') }}">Login</a>
 {% endif %}
 {% endif %}
-</p>
-<h1>{{ title }}</h1>
 
 {% block content %}{% endblock content %}
 {% block footer %}
