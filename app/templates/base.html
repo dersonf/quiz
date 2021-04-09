@@ -7,6 +7,20 @@ Quiz em Flask{% if title %} - {{ title }}{% endif %}
 {% block navbar %}
 <div class="navbar navbar-fixed-top">
   <!-- ... -->
+  {% if session.jogando %}
+<a href="{{ url_for('fim') }}">Finalizar</a>
+{% endif %}
+{% if not session.jogando %}
+<a href="{{ url_for('index') }}">Home</a> - 
+<a href="{{ url_for('iniciar') }}">Iniciar</a> - 
+{% if current_user.is_authenticated %}
+<a href="{{ url_for('add') }}">Adicionar</a> - 
+<a href="{{ url_for('consulta') }}">Consulta</a> - 
+<a href="{{ url_for('logout') }}">Logout</a>
+{% else %}
+<a href="{{ url_for('login') }}">Login</a>
+{% endif %}
+{% endif %}
 </div>
 {% endblock %}
 
