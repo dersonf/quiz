@@ -15,7 +15,7 @@ from app.forms import (
     NomeForm,
     LoginForm,
 )
-from flask_login import login_user
+from flask_login import login_user, login_required, logout_user, current_user
 from app import app, db, login
 from app.models import Perguntas, Respostas, Usuarios
 from random import choice, sample
@@ -46,6 +46,8 @@ def iniciar():
         session['nivel'] = 'D'
         session['multiplicador'] = 1
         return redirect(url_for('gera_pergunta'))
+    if current_user.is_authenticated:
+            form.nome.data = current_user.fullname
     return render_template('iniciar.html', title='Iniciar', form=form)
 
 
@@ -133,7 +135,7 @@ def corrigir(resposta):
             db.session.commit()
         pontos = session.get('pontos')
         nome = session.get('nome')
-        session.clear()
+        limpa_sessao()
         return render_template('fim.html', title='Resposta incorreta!!!',
                                nome=nome, pontos=pontos, pergunta=pergunta,
                                resposta=valida)
@@ -149,7 +151,7 @@ def fim():
     """Finaliza jogo em andamento"""
     nome = session.get('nome')
     pontos = session.get('pontos')
-    session.clear()
+    limpa_sessao()
     return render_template('fim.html', title='Fim de jogo', nome=nome,
                            pontos=pontos)
 
@@ -157,6 +159,9 @@ def fim():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """Faz o login pra administração"""
+    if current_user.is_authenticated:
+        flash('Já autenticado!!!')
+        return redirect(url_for('index'))
     form = LoginForm()
     if form.validate_on_submit():
         usuario = Usuarios.query.filter_by(username=form.usuario.data).first()
@@ -170,7 +175,14 @@ def login():
     return render_template('login.html', title='Login', form=form)
 
 
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+
 @app.route('/add', methods=['GET', 'POST'])
+@login_required
 def add():
     """Função que cadastra pergunta"""
     form = CadastroForm()
@@ -215,6 +227,7 @@ def add():
 
 
 @app.route('/consulta', methods=['GET', 'POST'])
+@login_required
 def consulta():
     """Função que faz a consulta no banco sobre a pergunta"""
     form = ConsultaForm()
@@ -237,6 +250,7 @@ def consulta():
 
 
 @app.route('/editar/<tipo>/<id>', methods=['GET', 'POST'])
+@login_required
 def editar(tipo, id):
     """Função para a edição da pergunta"""
     if tipo == 'pergunta':
@@ -264,3 +278,12 @@ def editar(tipo, id):
         form.resposta.data = resposta.resposta
         form.correta.data = resposta.correta
     return render_template('edita_pergunta.html', form=form)
+
+def limpa_sessao():
+    """Limpa a sessão do usuário ao fim do jogo"""
+    session.pop('nome', None)
+    session.pop('pontos', None)
+    session.pop('perguntas', None)
+    session.pop('jogando', None)
+    session.pop('nivel', None)
+    session.pop('multiplicador', None)
