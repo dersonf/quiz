@@ -15,12 +15,19 @@ from app.forms import (
     NomeForm,
     LoginForm,
 )
-from app import app, db
+from flask_login import login_user
+from app import app, db, login
 from app.models import Perguntas, Respostas, Usuarios
 from random import choice, sample
 from wtforms import RadioField
 from wtforms.validators import DataRequired
 import jinja2
+
+
+@login.user_loader
+def load_user(id):
+    return Usuarios.query.filter_by(id=id).first()
+
 
 @app.route('/')
 def index():
@@ -153,11 +160,12 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         usuario = Usuarios.query.filter_by(username=form.usuario.data).first()
-        app.logger.info(f"Autenticou {usuario.username}")
-        if usuario.valida_senha(form.senha.data) is True:
-            flash('Usuário autenticado com sucesso!')
-        else:
-            flash('Usuario e senha incorretos!')
+        # app.logger.info(f"Autenticou {usuario.username}")
+        if usuario is None or not usuario.valida_senha(form.senha.data):
+            flash('Usuario e/ou senha incorretos!')
+            return redirect(url_for('login'))
+        login_user(usuario)
+        flash(f"Bem vindo {usuario.fullname}!")
         return redirect(url_for('index'))
     return render_template('login.html', title='Login', form=form)
 

@@ -1,5 +1,6 @@
+from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import db, app
+from app import db, app, login
 
 
 class Perguntas(db.Model):
@@ -18,7 +19,7 @@ class Respostas(db.Model):
     correta = db.Column(db.Boolean, default=False)
 
 
-class Usuarios(db.Model):
+class Usuarios(UserMixin, db.Model):
     """Tabela de usuários"""
     id = db.Column(db.Integer, unique=True, primary_key=True)
     username = db.Column(db.String(14), unique=True)
