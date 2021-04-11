@@ -1,56 +1,64 @@
-{% extends 'bootstrap/base.html' %}
+{% from 'bootstrap/nav.html' import render_nav_item %}
+{% from 'bootstrap/utils.html' import render_messages %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Quiz em Flask{% if title %} - {{ title }}{% endif %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    {{ bootstrap.load_css() }}
+    <style>
+        pre {
+            background: #ddd;
+            padding: 10px;
+        }
+        h2 {
+            margin-top: 20px;
+        }
+        footer {
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                {% if session.jogando %}
+                {{ render_nav_item('fim', 'Fim', use_li=True) }}
+                {% endif %}
+                {% if not session.jogando %}
+                {{ render_nav_item('index', 'Home', use_li=True) }}
+                {{ render_nav_item('iniciar', 'Iniciar', use_li=True) }}
+                {% if current_user.is_authenticated %}
+                {{ render_nav_item('add', 'Adicionar', use_li=True) }}
+                {{ render_nav_item('consulta', 'Consultar', use_li=True) }}
+                {{ render_nav_item('logout', 'Logout', use_li=True) }}
+                {% else %}
+                {{ render_nav_item('login', 'Login', use_li=True) }}
+                {% endif %}
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+    
+    <main class="container">
+        {{ render_messages(container=False, dismissible=True) }}
+        {% block content %}{% endblock %}
+    </main>
 
-{% block title %}
-Quiz em Flask{% if title %} - {{ title }}{% endif %}
-{% endblock %}
+    <footer class="text-center">
+        {% block footer %}
+            <small> &copy; 2021–<script>document.write(new Date().getFullYear())</script> <a href="http://ferneda.com.br" title="Written by Anderson Ferneda">Anderson Ferneda</a>
+            </small>
+        {% endblock %}
+    </footer>
 
-{% block navbar %}
-<div class="navbar navbar-fixed-top">
-  <!-- ... -->
-  {% if session.jogando %}
-<a href="{{ url_for('fim') }}">Finalizar</a>
-{% endif %}
-{% if not session.jogando %}
-<a href="{{ url_for('index') }}">Home</a> - 
-<a href="{{ url_for('iniciar') }}">Iniciar</a> - 
-{% if current_user.is_authenticated %}
-<a href="{{ url_for('add') }}">Adicionar</a> - 
-<a href="{{ url_for('consulta') }}">Consulta</a> - 
-<a href="{{ url_for('logout') }}">Logout</a>
-{% else %}
-<a href="{{ url_for('login') }}">Login</a>
-{% endif %}
-{% endif %}
-</div>
-{% endblock %}
-
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-<ul>
-    {% for message in messages %}
-    <li>{{ message }}</li>
-    {% endfor %}
-</ul>
-{% endif %}
-{% endwith %}
-<p>
-{% if session.jogando %}
-<a href="{{ url_for('fim') }}">Finalizar</a>
-{% endif %}
-{% if not session.jogando %}
-<a href="{{ url_for('index') }}">Home</a> - 
-<a href="{{ url_for('iniciar') }}">Iniciar</a> - 
-{% if current_user.is_authenticated %}
-<a href="{{ url_for('add') }}">Adicionar</a> - 
-<a href="{{ url_for('consulta') }}">Consulta</a> - 
-<a href="{{ url_for('logout') }}">Logout</a>
-{% else %}
-<a href="{{ url_for('login') }}">Login</a>
-{% endif %}
-{% endif %}
-
-{% block content %}{% endblock content %}
-{% block footer %}
-<br>
-<p><a href="http://ferneda.com.br">ferneda.com.br</a></p>
-{% endblock %}
+    {{ bootstrap.load_js() }}
+</body>
+</html>
