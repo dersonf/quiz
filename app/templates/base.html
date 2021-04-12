@@ -49,6 +49,8 @@
     
     <main class="container">
         {{ render_messages(container=False, dismissible=True) }}
+        <h1>Quiz em Flask{% if title %} - {{ title }}{% endif %}</h1>
+        <br>
         {% block content %}{% endblock %}
     </main>
 

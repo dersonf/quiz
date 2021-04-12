@@ -1,22 +1,8 @@
 {% extends "base.html" %}
+{% from 'bootstrap/form.html' import render_form %}
 
 {% block content %}
 <form action="" method="post">
-    {{ form.hidden_tag() }}
-    <p>
-        {{ form.usuario.label }}
-        {{ form.usuario(size=30) }}<br>
-        {% for error in form.usuario.errors %}
-        <span style="color:red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>
-        {{ form.senha.label }}
-        {{ form.senha(size=30) }}<br>
-        {% for error in form.senha.errors %}
-        <span style="color:red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>{{ form.submit() }}</p>
+    {{ render_form(form, form_type='horizontal') }}
 </form>
 {% endblock %}

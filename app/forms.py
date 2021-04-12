@@ -15,7 +15,7 @@ class BotaoConfirma(FlaskForm):
     submit = SubmitField('Confirma')
 
 
-class CadastroForm(BotaoConfirma):
+class CadastroForm(FlaskForm):
     pergunta = StringField('Pergunta', [DataRequired()])
     resposta1 = StringField('Resposta 1', [DataRequired()])
     resposta2 = StringField('Resposta 2', [DataRequired()])
@@ -39,6 +39,7 @@ class CadastroForm(BotaoConfirma):
         ('B', 'Média'),
         ('A', 'Difícil'),
         ])
+    submit = SubmitField('Cadastrar')
 
 
 class PerguntaForm(FlaskForm):
@@ -65,6 +66,7 @@ class NomeForm(FlaskForm):
     iniciar = SubmitField('Iniciar')
 
 
-class LoginForm(BotaoConfirma):
+class LoginForm(FlaskForm):
     usuario = StringField('Usuário', [DataRequired()])
     senha = PasswordField('Senha', [DataRequired()])
+    submit = SubmitField('Login')

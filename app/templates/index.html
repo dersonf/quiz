@@ -1,8 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Quiz em Flask</h1>
-<br>
-<p>Quase 5000 perguntas com 4 níveis de dificuldade para se divertir.</p>
-<p>Quem consegue a maior quantidade de pontos?</p>
+<div class="jumbotron">
+    <div class="container">
+        <p>Bem vindo ao Quiz desenvolvido em Flask, teste seu conhecimentos!</p>
+        <ul>
+            <li>quase 5000 perguntas;</li>
+            <li>4 níveis de dificuldade;</li>
+            <li>entreterimento, ciências, matemática, inglês, religião, etc;</li>
+        </ul>
+        <p>Quem consegue a maior quantidade de pontos?</p>
+      <p><a class="btn btn-primary btn-lg" href="{{ url_for('iniciar') }}" role="button">Iniciar</a></p>
+    </div>
+  </div>
 {% endblock %}

@@ -97,7 +97,7 @@ def pergunta():
     if form.validate_on_submit():
         return redirect(url_for('corrigir', resposta=form.resposta.data))
     pergunta = Perguntas.query.get(pergunta)
-    return render_template('pergunta.html', title='Pergunta:',
+    return render_template('pergunta.html', title='Pergunta',
                            pergunta=pergunta, form=form)
 
 
@@ -108,7 +108,10 @@ def corrigir(resposta):
     pergunta = Perguntas.query.get(valida.pergunta_id)
     # Adiciona a pergunta feita a lista das já perguntadas
     session['perguntas'] = session.get('perguntas')
-    session['perguntas'].append(pergunta.id)
+    try:
+        session['perguntas'].append(pergunta.id)
+    except AttributeError:
+        return redirect(url_for('index'))
     if valida.correta is True:
         session['pontos'] = session.get('pontos') + \
             (1000 * session.get('multiplicador'))

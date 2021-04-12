@@ -1,7 +1,9 @@
 {% extends "base.html" %}
+{% from 'bootstrap/form.html' import render_field %}
 
 {% block content %}
 <h1>Parabéns {{ session.get('nome') }}!!!</h1>
 <h1>Pontuação: {{ session.get('pontos') }}</h1>
-<a href="{{ url_for('gera_pergunta') }}">Próxima</a>
+<br>
+<a href="{{ url_for('gera_pergunta') }}" class="btn btn-primary">Próxima</a>
 {% endblock %}

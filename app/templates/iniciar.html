@@ -1,15 +1,10 @@
 {% extends "base.html" %}
+{% from 'bootstrap/form.html' import render_field %}
 
 {% block content %}
-<form action="" method="post">
+<form method="post" novalidade>
     {{ form.hidden_tag() }}
-    <p>
-        {{ form.nome.label }}
-        {{ form.nome(size=40) }}<br>
-        {% for error in form.nome.errors %}
-        <span style="color:red;">[{{ error }}]</span>
-        {% endfor %}
-    <p>
-    <p>{{ form.iniciar() }}</p>
+    {{ render_field(field=form.nome, form_type='horizontal', horizontal_columns=('sm', 1, 100)) }}
+    {{ render_field(form.iniciar, button_size='lg') }}
 </form>
 {% endblock %}

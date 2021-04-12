@@ -1,15 +1,14 @@
 {% extends "base.html" %}
+{% from 'bootstrap/form.html' import render_field %}
 
 {% block content %}
-<p><h2>{{ pergunta.pergunta }}</h2></p>
+<p><h4>Pergunta: {{ pergunta.pergunta }}</p>
 <form action="" method="post">
     {{ form.hidden_tag() }}
-    <h3>{{ form.resposta(style="list-style:none") }}</h3>
-    {% for error in form.resposta.errors %}
-    <span style="color:red;">[{{ error }}]</span>
-    {% endfor %}
-    </p>
-    <p>{{ form.submit() }}</p>
-</form>
-<p>ID: {{ pergunta.id }}</p>
+    {{ render_field(form.resposta, form_type='horizontal', button_size='lg') }}
+    {{ render_field(form.submit, button_size='lg') }}
+</form></h4>
+<br>
+<p>Valendo: {{ 1000 * session.multiplicador }} pontos.</p>
+<p>ID da pergunta: {{ pergunta.id }}</p>
 {% endblock %}
