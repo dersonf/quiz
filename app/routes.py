@@ -45,23 +45,39 @@ def iniciar():
         session['jogando'] = 1
         session['nivel'] = 'D'
         session['multiplicador'] = 1
+        session['gerado_pergunta'] = 0
+        session['pulos'] = 1
         return redirect(url_for('gera_pergunta'))
     if current_user.is_authenticated:
-            form.nome.data = current_user.fullname
+        form.nome.data = current_user.fullname
+    elif session.get('nome'):
+        form.nome.data = session.get('nome')
     return render_template('iniciar.html', title='Iniciar', form=form)
 
 
 @app.route('/gera_pergunta')
 def gera_pergunta():
     """Função que gera o form da pergunta"""
-    session['opcoes'] = []
-    pergunta = _sorteia_pergunta()
-    # Pega as respostas da pergunta
-    respostas = Respostas.query.filter_by(pergunta_id=pergunta.id)
-    for resposta in respostas:
-        session['opcoes'].append((resposta.id, resposta.resposta))
-    session['pergunta_id'] = pergunta.id
-    return redirect(url_for('pergunta'))
+    if int(session.get('gerado_pergunta')) == 0:
+        session['opcoes'] = []
+        pergunta = _sorteia_pergunta()
+        # Pega as respostas da pergunta
+        respostas = Respostas.query.filter_by(pergunta_id=pergunta.id)
+        for resposta in respostas:
+            session['opcoes'].append((resposta.id, resposta.resposta))
+        session['pergunta_id'] = pergunta.id
+        session['gerado_pergunta'] = 1
+        return redirect(url_for('pergunta'))
+    else:
+        return redirect(url_for('pergunta'))
+
+
+@app.route('/pular')
+def pular():
+    """Pula a pergunta"""
+    session['pulos'] = 0
+    session['gerado_pergunta'] = 0
+    return redirect(url_for('gera_pergunta'))
 
 
 def _sorteia_pergunta():
@@ -108,6 +124,7 @@ def corrigir(resposta):
     pergunta = Perguntas.query.get(valida.pergunta_id)
     # Adiciona a pergunta feita a lista das já perguntadas
     session['perguntas'] = session.get('perguntas')
+    session['gerado_pergunta'] = 0
     try:
         session['perguntas'].append(pergunta.id)
     except AttributeError:
@@ -238,7 +255,7 @@ def consulta():
         try:
             pergunta = Perguntas.query.get(form.pergunta_id.data)
             respostas = Respostas.query.filter_by(pergunta_id=pergunta.id)
-            return render_template('consulta.html', title='Editar', form=form,
+            return render_template('consulta.html', title='Consulta', form=form,
                                    pergunta=pergunta, respostas=respostas)
         except AttributeError:
             flash("ID não existe.")
@@ -280,13 +297,13 @@ def editar(tipo, id):
     elif tipo == 'resposta':
         form.resposta.data = resposta.resposta
         form.correta.data = resposta.correta
-    return render_template('edita_pergunta.html', form=form)
+    return render_template('edita_pergunta.html', form=form, title='Edição')
 
 def limpa_sessao():
     """Limpa a sessão do usuário ao fim do jogo"""
-    session.pop('nome', None)
     session.pop('pontos', None)
     session.pop('perguntas', None)
     session.pop('jogando', None)
     session.pop('nivel', None)
     session.pop('multiplicador', None)
+    session.pop('gerado_pergunta', None)

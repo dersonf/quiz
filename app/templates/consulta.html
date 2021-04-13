@@ -1,23 +1,20 @@
 {% extends "base.html" %}
+{% from 'bootstrap/form.html' import render_field %}
 
 {% block content %}
 <form action="" method="post">
     {{ form.hidden_tag() }}
-    <p>
-        {{ form.pergunta_id.label }}
-        {{ form.pergunta_id(size=5) }}<br>
-        {% for error in form.pergunta_id.errors %}
-        <span style="color:red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
+    {{ render_field(field=form.pergunta_id, form_type='horizontal', horizontal_columns=('sm', 1, 100)) }}
     {% if form.pergunta_id.data %}
-    <p>pergunta: {{ pergunta.pergunta }} - <a href="{{ url_for('editar', tipo='pergunta', id=pergunta.id ) }}">editar</a></p>
+    <p>pergunta: {{ pergunta.pergunta }}</p>
     {% for resposta in respostas %}
-    <p>resposta: {{ resposta.resposta }} - {{ resposta.correta }} - <a href="{{ url_for('editar', tipo='resposta', id=resposta.id ) }}">editar</a></p>
+    <p>resposta: {{ resposta.resposta }} - {{ resposta.correta }} - <a class="btn btn-primary btn-sm" href="{{ url_for('editar', tipo='resposta', id=resposta.id ) }}">editar</a></p>
     {% endfor %}
-    <p>Dificuldade: {{ pergunta.dificuldade }} - <a href="{{ url_for('editar', tipo='pergunta', id=pergunta.id ) }}">editar</a></p>
-    <p>Classe: {{ pergunta.classe }} - <a href="{{ url_for('editar', tipo='pergunta', id=pergunta.id ) }}">editar</a></p>
+    <p>Dificuldade: {{ pergunta.dificuldade }}</p>
+    <p>Classe: {{ pergunta.classe }}</p>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('editar', tipo='pergunta', id=pergunta.id ) }}">Editar pergunta</a>
+    
     {% endif %}
-    <p>{{ form.submit() }}</p>
+    {{ render_field(form.submit, button_size='lg') }}
 </form>
 {% endblock %}

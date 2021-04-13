@@ -12,7 +12,7 @@ from wtforms.validators import DataRequired
 
 
 class BotaoConfirma(FlaskForm):
-    submit = SubmitField('Confirma')
+    submit = SubmitField('Consultar')
 
 
 class CadastroForm(FlaskForm):
@@ -50,15 +50,17 @@ class ConsultaForm(BotaoConfirma):
     pergunta_id = IntegerField('ID', [DataRequired()])
 
 
-class EditaPerguntaForm(BotaoConfirma):
+class EditaPerguntaForm(FlaskForm):
     pergunta = StringField('Pergunta', [DataRequired()])
     dificuldade = IntegerField('Dificuldade', [DataRequired()])
     classe = StringField('Classe', [DataRequired()])
+    submit = SubmitField('Confirma')
 
 
-class EditaRespostaForm(BotaoConfirma):
+class EditaRespostaForm(FlaskForm):
     resposta = StringField('Resposta', [DataRequired()])
     correta = BooleanField('Correta')
+    submit = SubmitField('Confirma')
 
 
 class NomeForm(FlaskForm):

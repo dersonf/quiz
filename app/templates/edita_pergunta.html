@@ -1,47 +1,8 @@
 {% extends "base.html" %}
+{% from 'bootstrap/form.html' import render_field, render_form %}
 
 {% block content %}
-<h1>{{ title }}</h1>
 <form action="" method="post">
-    {{ form.hidden_tag() }}
-    {% if form.resposta %}
-    <p>
-        {{ form.resposta.label }}
-        {{ form.resposta(size=40) }}<br>
-        {% for error in form.resposta.errors %}
-        <span style="color:red;">[{{ error }}]</span>
-        {% endfor %}
-    <p>
-        {{ form.correta.label }}
-        {{ form.correta }}<br>
-        {% for error in form.correta.errors %}
-        <span style="color:red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    {% endif %}
-    {% if form.pergunta %}
-    <p>
-        {{ form.pergunta.label }}
-        {{ form.pergunta(size=40) }}<br>
-        {% for error in form.pergunta.errors %}
-        <span style="color:red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>
-        {{ form.dificuldade.label }}
-        {{ form.dificuldade }}<br>
-        {% for error in form.dificuldade.errors %}
-        <span style="color:red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>
-        {{ form.classe.label }}
-        {{ form.classe }}<br>
-        {% for error in form.classe.errors %}
-        <span style="color:red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    {% endif %}
-    <p>{{ form.submit() }}</p>
+    {{ render_form(form)}}
 </form>
 {% endblock %}
