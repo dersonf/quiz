@@ -40,19 +40,26 @@ def iniciar():
     form = NomeForm()
     if form.validate_on_submit():
         session['nome'] = form.nome.data.title()
-        session['pontos'] = 0
-        session['perguntas'] = []
-        session['jogando'] = 1
-        session['nivel'] = 'D'
-        session['multiplicador'] = 1
-        session['gerado_pergunta'] = 0
-        session['pulos'] = 1
+        _inicia_sessao()
         return redirect(url_for('gera_pergunta'))
     if current_user.is_authenticated:
-        form.nome.data = current_user.fullname
+        session['nome'] = current_user.fullname
+        _inicia_sessao()
+        return redirect(url_for('gera_pergunta'))
     elif session.get('nome'):
         form.nome.data = session.get('nome')
     return render_template('iniciar.html', title='Iniciar', form=form)
+
+
+def _inicia_sessao():
+    """Inicia os dados da sessão."""
+    session['pontos'] = 0
+    session['perguntas'] = []
+    session['jogando'] = 1
+    session['nivel'] = 'D'
+    session['multiplicador'] = 1
+    session['gerado_pergunta'] = 0
+    session['pulos'] = 1
 
 
 @app.route('/gera_pergunta')
@@ -67,17 +74,20 @@ def gera_pergunta():
             session['opcoes'].append((resposta.id, resposta.resposta))
         session['pergunta_id'] = pergunta.id
         session['gerado_pergunta'] = 1
-        return redirect(url_for('pergunta'))
-    else:
-        return redirect(url_for('pergunta'))
+    return redirect(url_for('pergunta'))
 
 
 @app.route('/pular')
 def pular():
     """Pula a pergunta"""
-    session['pulos'] = 0
-    session['gerado_pergunta'] = 0
-    return redirect(url_for('gera_pergunta'))
+    if int(session.get('pulos')) > 0:
+        session['pulos'] = 0
+        session['gerado_pergunta'] = 0
+        flash("Pulou a pergunta.")
+        return redirect(url_for('gera_pergunta'))
+    else:
+        flash("Acabaram seus pulos.")
+        return redirect(url_for('pergunta'))
 
 
 def _sorteia_pergunta():
@@ -101,10 +111,13 @@ def pergunta():
     """Função que faz a pergunta"""
     # Valida se a pergunta já foi feita
     pergunta = session.get('pergunta_id')
-    if int(pergunta) in session.get('perguntas'):
-        app.logger.info('Deve ter tentado roubar')
-        session['nivel'] = 'A'
-        return redirect(url_for('gera_pergunta'))
+    try:
+        if int(pergunta) in session.get('perguntas'):
+            app.logger.info('Deve ter tentado roubar')
+            session['nivel'] = 'A'
+            return redirect(url_for('gera_pergunta'))
+    except TypeError:
+        return redirect(url_for('index'))
     setattr(PerguntaForm, 'resposta', RadioField(
         'Respostas',
         choices=sample(session.get('opcoes'), k=4),
@@ -133,15 +146,15 @@ def corrigir(resposta):
         session['pontos'] = session.get('pontos') + \
             (1000 * session.get('multiplicador'))
         # Aumenta a dificuldade a cada quantidade de perguntas
-        if len(session.get('perguntas')) == 5:
+        if len(session.get('perguntas')) == 6:
             session['nivel'] = 'C'
             session['multiplicador'] = 2
-            flash('Aumentando o nivel!!!')
-        elif len(session.get('perguntas')) == 10:
+            flash('Aumentando o nivel de dificuldade!!!')
+        elif len(session.get('perguntas')) == 12:
             session['nivel'] = 'B'
             session['multiplicador'] = 3
-            flash('Aumentando o nível!!!')
-        elif len(session.get('perguntas')) == 15:
+            flash('Aumentando o nível de dificuldade!!!')
+        elif len(session.get('perguntas')) == 18:
             session['nivel'] = 'A'
             session['multiplicador'] = 4
             flash('Aumentando para o nível mais alto!!!')
