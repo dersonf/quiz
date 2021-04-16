@@ -33,3 +33,10 @@ class Usuarios(UserMixin, db.Model):
     def valida_senha(self, password):
         """Valida a senha"""
         return check_password_hash(self.password, password)
+
+
+class ScoreBoard(db.Model):
+    """Tabela de pontuacao"""
+    id = db.Column(db.Integer, unique=True, primary_key=True)
+    username = db.Column(db.String(20))
+    pontos = db.Column(db.Integer)

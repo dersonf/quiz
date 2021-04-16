@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_table import Table, Col
 from wtforms import (
     StringField,
     BooleanField,
@@ -72,3 +73,8 @@ class LoginForm(FlaskForm):
     usuario = StringField('Usuário', [DataRequired()])
     senha = PasswordField('Senha', [DataRequired()])
     submit = SubmitField('Login')
+
+
+class Colocacao(Table):
+    nome = Col('Nome')
+    pontos = Col('Pontos')

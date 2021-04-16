@@ -14,10 +14,11 @@ from app.forms import (
     EditaRespostaForm,
     NomeForm,
     LoginForm,
+    Colocacao,
 )
 from flask_login import login_user, login_required, logout_user, current_user
 from app import app, db, login
-from app.models import Perguntas, Respostas, Usuarios
+from app.models import Perguntas, Respostas, Usuarios, ScoreBoard
 from random import choice, sample
 from wtforms import RadioField
 from wtforms.validators import DataRequired
@@ -168,6 +169,7 @@ def corrigir(resposta):
             db.session.commit()
         pontos = session.get('pontos')
         nome = session.get('nome')
+        grava_rank()
         limpa_sessao()
         return render_template('fim.html', title='Resposta incorreta!!!',
                                nome=nome, pontos=pontos, pergunta=pergunta,
@@ -184,6 +186,7 @@ def fim():
     """Finaliza jogo em andamento"""
     nome = session.get('nome')
     pontos = session.get('pontos')
+    grava_rank()
     limpa_sessao()
     return render_template('fim.html', title='Fim de jogo', nome=nome,
                            pontos=pontos)
@@ -312,6 +315,7 @@ def editar(tipo, id):
         form.correta.data = resposta.correta
     return render_template('edita_pergunta.html', form=form, title='Edição')
 
+
 def limpa_sessao():
     """Limpa a sessão do usuário ao fim do jogo"""
     session.pop('pontos', None)
@@ -320,3 +324,18 @@ def limpa_sessao():
     session.pop('nivel', None)
     session.pop('multiplicador', None)
     session.pop('gerado_pergunta', None)
+
+def grava_rank():
+    pontos = session.get('pontos')
+    usuario = session.get('nome')
+    rank = ScoreBoard(username = usuario, pontos = pontos)
+    db.session.add(rank)
+    db.session.commit()
+
+
+@app.route('/score')
+def score():
+    score = db.session.query(ScoreBoard).order_by(ScoreBoard.pontos.desc())
+    tabela = Colocacao(score)
+    return render_template('ranking.html', title="Melhores Jogadores",
+                           tabela=tabela)
