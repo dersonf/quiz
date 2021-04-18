@@ -1,3 +1,8 @@
+'''
+Backlog:
+Gravar na tabela de score só o que valer entre os 10
+'''
+
 from flask import (
     render_template,
     redirect,
@@ -14,8 +19,8 @@ from app.forms import (
     EditaRespostaForm,
     NomeForm,
     LoginForm,
-    Colocacao,
 )
+from app.tabela import Colocacao, Item
 from flask_login import login_user, login_required, logout_user, current_user
 from app import app, db, login
 from app.models import Perguntas, Respostas, Usuarios, ScoreBoard
@@ -67,12 +72,13 @@ def _inicia_sessao():
 def gera_pergunta():
     """Função que gera o form da pergunta"""
     if int(session.get('gerado_pergunta')) == 0:
-        session['opcoes'] = []
         pergunta = _sorteia_pergunta()
         # Pega as respostas da pergunta
         respostas = Respostas.query.filter_by(pergunta_id=pergunta.id)
-        for resposta in respostas:
-            session['opcoes'].append((resposta.id, resposta.resposta))
+        # list comprehension
+        session['opcoes'] = [
+            (resposta.id, resposta.resposta) for resposta in respostas
+            ]
         session['pergunta_id'] = pergunta.id
         session['gerado_pergunta'] = 1
     return redirect(url_for('pergunta'))
@@ -93,13 +99,12 @@ def pular():
 
 def _sorteia_pergunta():
     """Sorteia uma pergunta que não foi feita na sessão."""
-    id_perguntas = []    
     # Pega todas as perguntas do nivel
     perguntas = Perguntas.query.filter_by(classe=session.get('nivel'))
     # Coloca o id das perguntas em uma lista exceto as já feitas
-    for pergunta in perguntas:
-        if pergunta.id not in session.get('perguntas'):
-            id_perguntas.append(pergunta.id)
+    # list comprehension
+    id_perguntas = [pergunta.id for pergunta in perguntas
+                    if pergunta.id not in session.get('perguntas')]
     # Se acabar todas as perguntas finaliza o jogo
     if not id_perguntas:
         return redirect(url_for('fim'))
@@ -288,7 +293,7 @@ def consulta():
 @app.route('/editar/<tipo>/<id>', methods=['GET', 'POST'])
 @login_required
 def editar(tipo, id):
-    """Função para a edição da pergunta"""
+    """Função para a edição da pergunta e resposta"""
     if tipo == 'pergunta':
         pergunta = Perguntas.query.get(id)
         form = EditaPerguntaForm()
@@ -328,6 +333,9 @@ def limpa_sessao():
 def grava_rank():
     pontos = session.get('pontos')
     usuario = session.get('nome')
+    menor = db.session.query(ScoreBoard).order_by(
+            ScoreBoard.pontos.asc()).first()
+    print(menor.pontos)
     rank = ScoreBoard(username = usuario, pontos = pontos)
     db.session.add(rank)
     db.session.commit()
@@ -335,7 +343,13 @@ def grava_rank():
 
 @app.route('/score')
 def score():
-    score = db.session.query(ScoreBoard).order_by(ScoreBoard.pontos.desc())
-    tabela = Colocacao(score)
+    score = db.session.query(ScoreBoard).order_by(
+            ScoreBoard.pontos.desc()).limit(10)
+    # list comprehension
+    items = [
+        Item(str(posicao) + 'º', linha.username, linha.pontos)
+        for posicao, linha in enumerate(score, 1)
+        ]
+    tabela = Colocacao(items)
     return render_template('ranking.html', title="Melhores Jogadores",
                            tabela=tabela)

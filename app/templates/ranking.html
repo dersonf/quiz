@@ -2,6 +2,19 @@
 {% from 'bootstrap/form.html' import render_field %}
 
 {% block content %}
-<h4>Nome - Pontos</h4>
-{{ tabela }}
+<style>
+    th {
+        background-color: #3881ee;
+        color: white;
+    }
+    table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 10px;
+        text-align: center;
+    }
+</style>
+<center><h4>{{ tabela }}</h4></center>
 {% endblock %}
