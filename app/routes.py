@@ -1,5 +1,6 @@
 '''
 Backlog:
+Não grava os pontos None e 0 na Tabela de pontos
 Gravar na tabela de score só o que valer entre os 10
 '''
 
@@ -331,14 +332,15 @@ def limpa_sessao():
     session.pop('gerado_pergunta', None)
 
 def grava_rank():
-    pontos = session.get('pontos')
     usuario = session.get('nome')
-    menor = db.session.query(ScoreBoard).order_by(
-            ScoreBoard.pontos.asc()).first()
-    print(menor.pontos)
-    rank = ScoreBoard(username = usuario, pontos = pontos)
-    db.session.add(rank)
-    db.session.commit()
+    if session.get('pontos') is None or int(session.get('pontos')) == 0:
+        app.logger.debug('Pontuação insuficiente')
+        pass
+    else:
+        rank = ScoreBoard(username = usuario,
+                          pontos = int(session.get('pontos')))
+        db.session.add(rank)
+        db.session.commit()
 
 
 @app.route('/score')
