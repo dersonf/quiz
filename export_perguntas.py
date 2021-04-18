@@ -43,21 +43,32 @@ with open('QUESTOES.txt', encoding='latin-1') as f:
                     # print(classe, dificuldade)
                     # print(dificuldade)
                     # print(pergunta, dificuldade, classe)
-                    pergunta = Perguntas(pergunta=pergunta, dificuldade=dificuldade, classe=classe)
+                    pergunta = Perguntas(pergunta=pergunta,
+                                         dificuldade=dificuldade,
+                                         classe=classe)
                     db.session.add(pergunta)
                     db.session.commit()
-                    resposta1 = Respostas(resposta=r1, pergunta_id=pergunta.id)
-                    resposta2 = Respostas(resposta=r2, pergunta_id=pergunta.id)
-                    resposta3 = Respostas(resposta=r3, pergunta_id=pergunta.id)
-                    resposta4 = Respostas(resposta=r4, pergunta_id=pergunta.id)
-                    db.session.add_all([resposta1, resposta2, resposta3, resposta4])
+                    resposta1 = Respostas(resposta=r1,
+                                          pergunta_id=pergunta.id)
+                    resposta2 = Respostas(resposta=r2,
+                                          pergunta_id=pergunta.id)
+                    resposta3 = Respostas(resposta=r3,
+                                          pergunta_id=pergunta.id)
+                    resposta4 = Respostas(resposta=r4,
+                                          pergunta_id=pergunta.id)
+                    db.session.add_all([
+                        resposta1,
+                        resposta2,
+                        resposta3,
+                        resposta4
+                        ])
                     db.session.commit()
                     if correta == '1':
-                        resposta1.correta=True
+                        resposta1.correta = True
                     elif correta == '2':
-                        resposta2.correta=True
+                        resposta2.correta = True
                     elif correta == '3':
-                        resposta3.correta=True
+                        resposta3.correta = True
                     elif correta == '4':
-                        resposta4.correta=True
+                        resposta4.correta = True
                     db.session.commit()

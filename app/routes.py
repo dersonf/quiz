@@ -277,7 +277,8 @@ def consulta():
         try:
             pergunta = Perguntas.query.get(form.pergunta_id.data)
             respostas = Respostas.query.filter_by(pergunta_id=pergunta.id)
-            return render_template('consulta.html', title='Consulta', form=form,
+            return render_template('consulta.html', title='Consulta',
+                                   form=form,
                                    pergunta=pergunta, respostas=respostas)
         except AttributeError:
             flash("ID não existe.")
@@ -331,14 +332,15 @@ def limpa_sessao():
     session.pop('multiplicador', None)
     session.pop('gerado_pergunta', None)
 
+
 def grava_rank():
     usuario = session.get('nome')
     if session.get('pontos') is None or int(session.get('pontos')) == 0:
         app.logger.debug('Pontuação insuficiente')
         pass
     else:
-        rank = ScoreBoard(username = usuario,
-                          pontos = int(session.get('pontos')))
+        rank = ScoreBoard(username=usuario,
+                          pontos=int(session.get('pontos')))
         db.session.add(rank)
         db.session.commit()
 
