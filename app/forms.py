@@ -64,7 +64,9 @@ class EditaRespostaForm(FlaskForm):
 
 
 class NomeForm(FlaskForm):
-    nome = StringField('Nome', [DataRequired()])
+    texto = 'Seu nome ou apelido é somente utilizado para status de pontuação.'
+    nome = StringField(label='Nome', description=texto,
+                       validators=[DataRequired()])
     iniciar = SubmitField('Iniciar')
 
 
