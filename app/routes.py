@@ -339,10 +339,31 @@ def grava_rank():
         app.logger.debug('Pontuação insuficiente')
         pass
     else:
-        rank = ScoreBoard(username=usuario,
-                          pontos=int(session.get('pontos')))
-        db.session.add(rank)
+        # Pega os 10 primeiros
+        scores = db.session.query(ScoreBoard.pontos).order_by(
+            ScoreBoard.pontos.desc()).limit(10)
+        # Coloca os pontos na lista pontos
+        # list comprehension
+        pontos = [ponto[0] for ponto in scores]
+        if int(session.get('pontos')) > pontos[-1]:
+            rank = ScoreBoard(username=usuario,
+                              pontos=int(session.get('pontos')))
+            db.session.add(rank)
+            db.session.commit()
+            app.logger.debug(f"Gravou o placar {session.get('pontos')}")
+            # Limpa os placares fora do ranking
+            _remove_records()
+
+
+def _remove_records():
+    """Remove recordes inferiores a posição 10."""
+    scores = db.session.query(ScoreBoard.id).order_by(ScoreBoard.pontos.desc())
+    lista = [id[0] for pos, id in enumerate(scores, 1) if pos > 10]
+    for score in lista:
+        row = ScoreBoard.query.get(score)
+        db.session.delete(row)
         db.session.commit()
+        app.logger.debug(f"Removeu a entrada {score}")
 
 
 @app.route('/score')
