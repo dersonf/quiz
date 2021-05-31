@@ -1,6 +1,17 @@
 {% from 'bootstrap/nav.html' import render_nav_item %}
 {% from 'bootstrap/utils.html' import render_messages %}
 <!DOCTYPE html>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-CDXN9T37DQ"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-CDXN9T37DQ');
+</script>
+
 <html lang="pt-br">
 <head>
     <meta charset="utf-8">
@@ -61,7 +72,5 @@
             </small>
         {% endblock %}
     </footer>
-
-    {{ bootstrap.load_js() }}
 </body>
 </html>
