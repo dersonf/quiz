@@ -1,0 +1,16 @@
+pre {
+    background: black;
+    padding: 10px;
+}
+h2 {
+    margin-top: 20px;
+}
+footer {
+    margin: 20px;
+}
+body {
+    background-color:black
+}
+h1, p, a, h4, footer, li, label {
+    color: rgb(250, 250, 250)
+}

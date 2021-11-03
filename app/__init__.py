@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, Blueprint
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from config import Config
@@ -14,4 +14,8 @@ bootstrap = Bootstrap(app)
 
 login.login_view = 'login'
 
-from app import routes, models, forms, errors
+from app.errors import bp as errors_bp
+app.register_blueprint(errors_bp, url_prefix='/errors')
+
+
+from app import routes, models, forms

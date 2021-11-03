@@ -125,10 +125,13 @@ def pergunta():
             return redirect(url_for('gera_pergunta'))
     except TypeError:
         return redirect(url_for('index'))
-    setattr(PerguntaForm, 'resposta', RadioField(
-        'Respostas',
-        choices=sample(session.get('opcoes'), k=4),
-        validators=[DataRequired()]))
+    # setattr(PerguntaForm, 'resposta', RadioField(
+    #     'Respostas',
+    #     choices=sample(session.get('opcoes'), k=4),
+    #     validators=[DataRequired()]))
+    # Remoção do embaralhamento de perguntas
+    setattr(PerguntaForm, 'resposta', RadioField('Respostas',
+            choices=session.get('opcoes'), validators=[DataRequired()]))
     form = PerguntaForm()
     if form.validate_on_submit():
         return redirect(url_for('corrigir', resposta=form.resposta.data))

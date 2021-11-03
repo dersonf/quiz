@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block head %}
+  {{ super() }}
+    <link href="{{ url_for('errors.static', filename='500.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+<div class="vc-container">
+    <div class="vc-content">
+      <h1 class="vc-heading">500</h1>
+      <p class="vc-sub-heading">Internal Server <span class="blink-infinite">Error</span></p>
+      <br>
+      <a class="btn btn-danger mb-1 btn-lg blink-infinite" href="{{  url_for('index') }}">INÍCIO</a>
+    </div>
+  </div>
+
+{% endblock %}
