@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Registro de usuário</h1>
+
+  <div>
+    <form class="col-md-8 mx-auto" method='POST' action="" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="form-group mb-3">
+          {{ form.username.label }}
+          {{ form.username(class="form-control", placeholder="Username") }}
+          {% for error in form.username.errors %}
+              <span style="color: red">[{{ error }}]</span>
+          {% endfor %}
+        </div>
+        <div class="form-group mb-3">
+        {{ form.fullname.label }}
+        {{ form.fullname(class="form-control", placeholder="José Silva") }}
+        {% for error in form.fullname.errors %}
+            <span style="color: red">[{{ error }}]</span>
+        {% endfor %}
+        </div>
+        <div class="form-group mb-3">
+        {{ form.password.label }}
+        {{ form.password(class="form-control", placeholder="Senha") }}
+        {% for error in form.password.errors %}
+            <span style="color: red">[{{ error }}]</span>
+        {% endfor %}
+        </div>
+        <div class="form-group mb-3">
+        {{ form.password_again.label }}
+        {{ form.password_again(class="form-control", placeholder="Repetir a senha") }}
+        {% for error in form.password_again.errors %}
+            <span style="color: red">[{{ error }}]</span>
+        {% endfor %}
+        </div>
+        <br>
+          {{ form.submit(class="btn-lg btn-dark") }}
+    </form>
+  </div>
+{% endblock %}

@@ -1,7 +1,5 @@
 '''
 Backlog:
-Não grava os pontos None e 0 na Tabela de pontos
-Gravar na tabela de score só o que valer entre os 10
 '''
 
 from flask import (
@@ -19,16 +17,15 @@ from app.forms import (
     EditaPerguntaForm,
     EditaRespostaForm,
     NomeForm,
-    LoginForm,
 )
 from app.tabela import Colocacao, Item
-from flask_login import login_user, login_required, logout_user, current_user
+from flask_login import login_required, current_user
 from app import app, db, login
 from app.models import Perguntas, Respostas, Usuarios, ScoreBoard
 from random import choice, sample
 from wtforms import RadioField
 from wtforms.validators import DataRequired
-import jinja2
+from jinja2.exceptions import UndefinedError
 
 
 @login.user_loader
@@ -201,31 +198,6 @@ def fim():
                            pontos=pontos)
 
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    """Faz o login pra administração"""
-    if current_user.is_authenticated:
-        flash('Já autenticado!!!')
-        return redirect(url_for('index'))
-    form = LoginForm()
-    if form.validate_on_submit():
-        usuario = Usuarios.query.filter_by(username=form.usuario.data).first()
-        # app.logger.info(f"Autenticou {usuario.username}")
-        if usuario is None or not usuario.valida_senha(form.senha.data):
-            flash('Usuario e/ou senha incorretos!')
-            return redirect(url_for('login'))
-        login_user(usuario)
-        flash(f"Bem vindo {usuario.fullname}!")
-        return redirect(url_for('index'))
-    return render_template('login.html', title='Login', form=form)
-
-
-@app.route('/logout')
-def logout():
-    logout_user()
-    return redirect(url_for('index'))
-
-
 @app.route('/add', methods=['GET', 'POST'])
 @login_required
 def add():
@@ -290,7 +262,7 @@ def consulta():
     try:
         return render_template('consulta.html', title='Edição de pergunta',
                                form=form)
-    except jinja2.exceptions.UndefinedError:
+    except UndefinedError:
         flash("ID não existe.")
         return redirect(url_for('consulta'))
 

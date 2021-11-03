@@ -4,7 +4,6 @@ from wtforms import (
     BooleanField,
     SubmitField,
     SelectField,
-    RadioField,
     IntegerField,
     PasswordField,
 )

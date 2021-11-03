@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block head %}
+  {{ super() }}
+  <link href="{{ url_for('auth.static', filename='signin.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='quiz.css') }}" rel="stylesheet">
+{% endblock %}
+
+
+{% block content %}
+
+
+  <div style="margin-top: 5%; background:rgb(30, 30, 30)" class="form-signin signin-body text-center">
+    <form class="form-signin", method="post", action="", novalidate>
+      {{ form.hidden_tag() }}
+      <img class="mb-4" width='52'height='52' src="{{ url_for('auth.static', filename='question.gif') }}">
+      
+      <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+  
+      <div class="form-floating">
+        {{ form.username(class="form-control", placeholder="name@example.com", style="height: 60px; background:rgb(30, 30, 30); color:white") }}
+        {{ form.username.label(style="font-size:15px;") }}
+        {% for error in form.username.errors %}
+        <span style="color: red">[{{ error }}]</span>
+        {% endfor %}
+      </div>
+      <div class="form-floating">
+        {{ form.password(class="form-control", placeholder="Password", style="height: 60px; background:rgb(30, 30, 30); color:white") }}
+        {{ form.password.label(style="font-size:15px;") }}
+        {% for error in form.password.errors %}
+        <span style="color: red">[{{ error }}]</span>
+        {% endfor %}
+      </div>
+      <!--
+      <div class="checkbox mb-3">
+        <label>
+          <input type="checkbox" value="remember-me"> Remember me
+        </label>
+      </div>
+      -->
+      {{ form.submit(class="w-100 btn btn-lg btn-dark") }}
+      <p class="mt-5 mb-3 text-muted">&copy; 2021–2021</p>
+    </form>
+  </div>
+
+{% endblock %}

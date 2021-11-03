@@ -41,9 +41,9 @@
                 {% if current_user.is_authenticated %}
                 {{ render_nav_item('add', 'Adicionar', use_li=True) }}
                 {{ render_nav_item('consulta', 'Consultar', use_li=True) }}
-                {{ render_nav_item('logout', 'Logout', use_li=True) }}
+                {{ render_nav_item('auth.logout', 'Logout', use_li=True) }}
                 {% else %}
-                {{ render_nav_item('login', 'Login', use_li=True) }}
+                {{ render_nav_item('auth.logon', 'Login', use_li=True) }}
                 {% endif %}
                 {% endif %}
             </ul>
