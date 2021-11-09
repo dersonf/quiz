@@ -35,8 +35,8 @@
                 {{ render_nav_item('fim', 'Fim', use_li=True) }}
                 {% endif %}
                 {% if not session.jogando %}
-                {{ render_nav_item('index', 'Home', use_li=True) }}
-                {{ render_nav_item('iniciar', 'Iniciar', use_li=True) }}
+                {{ render_nav_item('main.index', 'Home', use_li=True) }}
+                {{ render_nav_item('main.iniciar', 'Iniciar', use_li=True) }}
                 {{ render_nav_item('score', 'Placar', use_li=True) }}
                 {% if current_user.is_authenticated %}
                 {{ render_nav_item('add', 'Adicionar', use_li=True) }}

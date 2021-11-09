@@ -5,5 +5,5 @@
 <h1>Parabéns {{ session.get('nome') }}!!!</h1>
 <h1>Pontuação: {{ session.get('pontos') }}</h1>
 <br>
-<a href="{{ url_for('gera_pergunta') }}" class="btn btn-primary">Próxima</a>
+<a href="{{ url_for('main.gera_pergunta') }}" class="btn btn-primary">Próxima</a>
 {% endblock %}

@@ -7,7 +7,6 @@ from flask import (
     redirect,
     url_for,
     flash,
-    request,
     session,
 )
 from app.forms import (
@@ -16,13 +15,11 @@ from app.forms import (
     ConsultaForm,
     EditaPerguntaForm,
     EditaRespostaForm,
-    NomeForm,
 )
 from app.tabela import Colocacao, Item
-from flask_login import login_required, current_user
+from flask_login import login_required
 from app import app, db, login
 from app.models import Perguntas, Respostas, Usuarios, ScoreBoard
-from random import choice, sample
 from wtforms import RadioField
 from wtforms.validators import DataRequired
 from jinja2.exceptions import UndefinedError
@@ -31,83 +28,6 @@ from jinja2.exceptions import UndefinedError
 @login.user_loader
 def load_user(id):
     return Usuarios.query.filter_by(id=id).first()
-
-
-@app.route('/')
-def index():
-    return render_template('index.html', title='Home')
-
-
-@app.route('/iniciar', methods=['GET', 'POST'])
-def iniciar():
-    """Função para iniciar o jogo"""
-    form = NomeForm()
-    if form.validate_on_submit():
-        session['nome'] = form.nome.data.title()
-        _inicia_sessao()
-        return redirect(url_for('gera_pergunta'))
-    if current_user.is_authenticated:
-        session['nome'] = current_user.fullname
-        _inicia_sessao()
-        return redirect(url_for('gera_pergunta'))
-    elif session.get('nome'):
-        form.nome.data = session.get('nome')
-    return render_template('iniciar.html', title='Iniciar', form=form)
-
-
-def _inicia_sessao():
-    """Inicia os dados da sessão."""
-    session['pontos'] = 0
-    session['perguntas'] = []
-    session['jogando'] = 1
-    session['nivel'] = 'D'
-    session['multiplicador'] = 1
-    session['gerado_pergunta'] = 0
-    session['pulos'] = 1
-
-
-@app.route('/gera_pergunta')
-def gera_pergunta():
-    """Função que gera o form da pergunta"""
-    if int(session.get('gerado_pergunta')) == 0:
-        pergunta = _sorteia_pergunta()
-        # Pega as respostas da pergunta
-        respostas = Respostas.query.filter_by(pergunta_id=pergunta.id)
-        # list comprehension
-        session['opcoes'] = [
-            (resposta.id, resposta.resposta) for resposta in respostas
-            ]
-        session['pergunta_id'] = pergunta.id
-        session['gerado_pergunta'] = 1
-    return redirect(url_for('pergunta'))
-
-
-@app.route('/pular')
-def pular():
-    """Pula a pergunta"""
-    if int(session.get('pulos')) > 0:
-        session['pulos'] = 0
-        session['gerado_pergunta'] = 0
-        flash("Pulou a pergunta.")
-        return redirect(url_for('gera_pergunta'))
-    else:
-        flash("Acabaram seus pulos.")
-        return redirect(url_for('pergunta'))
-
-
-def _sorteia_pergunta():
-    """Sorteia uma pergunta que não foi feita na sessão."""
-    # Pega todas as perguntas do nivel
-    perguntas = Perguntas.query.filter_by(classe=session.get('nivel'))
-    # Coloca o id das perguntas em uma lista exceto as já feitas
-    # list comprehension
-    id_perguntas = [pergunta.id for pergunta in perguntas
-                    if pergunta.id not in session.get('perguntas')]
-    # Se acabar todas as perguntas finaliza o jogo
-    if not id_perguntas:
-        return redirect(url_for('fim'))
-    # Sorteia uma pergunta e retorna ela
-    return Perguntas.query.get(choice(id_perguntas))
 
 
 @app.route('/pergunta', methods=['GET', 'POST'])
@@ -119,9 +39,9 @@ def pergunta():
         if int(pergunta) in session.get('perguntas'):
             app.logger.info('Deve ter tentado roubar')
             session['nivel'] = 'A'
-            return redirect(url_for('gera_pergunta'))
+            return redirect(url_for('main.gera_pergunta'))
     except TypeError:
-        return redirect(url_for('index'))
+        return redirect(url_for('main.index'))
     # setattr(PerguntaForm, 'resposta', RadioField(
     #     'Respostas',
     #     choices=sample(session.get('opcoes'), k=4),
@@ -148,7 +68,7 @@ def corrigir(resposta):
     try:
         session['perguntas'].append(pergunta.id)
     except AttributeError:
-        return redirect(url_for('index'))
+        return redirect(url_for('main.index'))
     if valida.correta is True:
         session['pontos'] = session.get('pontos') + \
             (1000 * session.get('multiplicador'))
@@ -238,7 +158,7 @@ def add():
         db.session.add_all([resposta1, resposta2, resposta3, resposta4])
         db.session.commit()
         flash('Pergunta cadastrada com sucesso!')
-        return redirect(url_for('index'))
+        return redirect(url_for('main.index'))
     return render_template('cadastro.html', title='Cadastro de pergunta',
                            form=form)
 
@@ -257,7 +177,6 @@ def consulta():
                                    pergunta=pergunta, respostas=respostas)
         except AttributeError:
             flash("ID não existe.")
-        else:
             return redirect(url_for('consulta'))
     try:
         return render_template('consulta.html', title='Edição de pergunta',

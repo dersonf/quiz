@@ -23,7 +23,7 @@ def logon():
         # Medidas de segurança para não forjar acesso
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('index')
+            next_page = url_for('main.index')
         return redirect(next_page)
     return render_template('logon.html', form=form)
 
@@ -31,7 +31,7 @@ def logon():
 @bp.route('/logout')
 def logout():
     logout_user()
-    return redirect(url_for('index'))
+    return redirect(url_for('main.index'))
 
 
 @bp.route('/registro', methods=['GET', 'POST'])
